@@ -16,6 +16,7 @@ app.get("/", (req, res) => {
 });
 
 // Feature routes
+app.use("/auth", require("./src/routes/auth.routes"));
 app.use("/cars", require("./src/routes/car.routes"));
 app.use("/owner", require("./src/routes/owner.routes"));
 app.use("/bookings", require("./src/routes/booking.routes"));

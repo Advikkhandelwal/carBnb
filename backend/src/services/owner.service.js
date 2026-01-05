@@ -21,3 +21,42 @@ exports.getCars = (ownerId) => {
     where: { ownerId },
   });
 };
+
+exports.updateCar = async (carId, ownerId, data) => {
+  // Verify car belongs to owner
+  const car = await prisma.car.findFirst({
+    where: { id: Number(carId), ownerId },
+  });
+  
+  if (!car) {
+    return null;
+  }
+  
+  return prisma.car.update({
+    where: { id: Number(carId) },
+    data: {
+      brand: data.brand,
+      model: data.model,
+      engine: data.engine,
+      fuelType: data.fuelType,
+      color: data.color,
+      pricePerDay: data.pricePerDay,
+      location: data.location,
+    },
+  });
+};
+
+exports.deleteCar = async (carId, ownerId) => {
+  // Verify car belongs to owner
+  const car = await prisma.car.findFirst({
+    where: { id: Number(carId), ownerId },
+  });
+  
+  if (!car) {
+    return null;
+  }
+  
+  return prisma.car.delete({
+    where: { id: Number(carId) },
+  });
+};
