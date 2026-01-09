@@ -21,6 +21,7 @@ app.use("/cars", require("./src/routes/car.routes"));
 app.use("/owner", require("./src/routes/owner.routes"));
 app.use("/bookings", require("./src/routes/booking.routes"));
 app.use("/reviews", require("./src/routes/review.routes"));
+app.use("/users", require("./src/routes/user.routes"));
 
 /* -------- ERROR HANDLER -------- */
 app.use((err, req, res, next) => {

@@ -5,13 +5,19 @@ const {
   getBookingById,
   updateBooking,
   cancelBooking,
+  checkAvailability,
+  getCarBookings,
 } = require("../controllers/booking.controller");
+const { authenticateToken } = require("../middlewares/auth.middleware");
 
-router.post("/", createBooking);
-router.get("/", getBookings);
-router.get("/:id", getBookingById);
-router.put("/:id", updateBooking);
-router.delete("/:id", cancelBooking);
+// All booking routes require authentication
+router.post("/", authenticateToken, createBooking);
+router.get("/", authenticateToken, getBookings);
+router.get("/:id", authenticateToken, getBookingById);
+router.put("/:id", authenticateToken, updateBooking);
+router.delete("/:id", authenticateToken, cancelBooking);
+router.get("/check-availability/:carId", authenticateToken, checkAvailability);
+router.get("/car/:carId", authenticateToken, getCarBookings);
 
 module.exports = router;
 

@@ -1,17 +1,23 @@
 const express = require("express");
 const router = express.Router();
+const {
+  register,
+  login,
+  getMe,
+  logout,
+  logout,
+  updateMe,
+  googleAuth,
+} = require("../controllers/auth.controller");
+const { authenticateToken } = require("../middlewares/auth.middleware");
 
-// later we will plug Google OAuth here
-router.get("/google", (req, res) => {
-  res.json({ message: "Google OAuth route" });
-});
+router.post("/register", register);
+router.post("/login", login);
+router.get("/me", authenticateToken, getMe);
+router.put("/me", authenticateToken, updateMe);
+router.post("/logout", authenticateToken, logout);
 
-router.get("/me", (req, res) => {
-  res.json({ message: "Get logged-in user" });
-});
-
-router.post("/logout", (req, res) => {
-  res.json({ message: "Logged out" });
-});
+router.post("/logout", authenticateToken, logout);
+router.post("/google", googleAuth);
 
 module.exports = router;

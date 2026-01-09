@@ -1,4 +1,5 @@
 const ownerService = require("../services/owner.service");
+const bookingService = require("../services/booking.service");
 
 exports.addCar = async (req, res) => {
   try {
@@ -10,7 +11,7 @@ exports.addCar = async (req, res) => {
       });
     }
 
-    const ownerId = 1; // TODO: Get from auth middleware
+    const ownerId = req.user.id;
     const car = await ownerService.addCar(ownerId, req.body);
     res.status(201).json(car);
   } catch (error) {
@@ -21,7 +22,7 @@ exports.addCar = async (req, res) => {
 
 exports.getOwnerCars = async (req, res) => {
   try {
-    const ownerId = 1; // TODO: Get from auth middleware
+    const ownerId = req.user.id;
     const cars = await ownerService.getCars(ownerId);
     res.json(cars);
   } catch (error) {
@@ -32,7 +33,7 @@ exports.getOwnerCars = async (req, res) => {
 
 exports.updateCar = async (req, res) => {
   try {
-    const ownerId = 1; // TODO: Get from auth middleware
+    const ownerId = req.user.id;
     const car = await ownerService.updateCar(req.params.id, ownerId, req.body);
     
     if (!car) {
@@ -48,7 +49,7 @@ exports.updateCar = async (req, res) => {
 
 exports.deleteCar = async (req, res) => {
   try {
-    const ownerId = 1; // TODO: Get from auth middleware
+    const ownerId = req.user.id;
     const car = await ownerService.deleteCar(req.params.id, ownerId);
     
     if (!car) {
@@ -59,5 +60,82 @@ exports.deleteCar = async (req, res) => {
   } catch (error) {
     console.error("Error deleting car:", error);
     res.status(500).json({ error: "Failed to delete car", message: error.message });
+  }
+};
+
+// ----- Owner bookings (for cars owned by the user) -----
+
+exports.getOwnerBookings = async (req, res) => {
+  try {
+    const ownerId = req.user.id;
+    const bookings = await bookingService.getOwnerBookings(ownerId);
+
+    const sanitized = bookings.map((b) => {
+      const booking = { ...b };
+
+      // From owner's perspective, renter phone is only shared when CONFIRMED
+      if (booking.user) {
+        booking.user = { ...booking.user };
+        if (booking.status !== "CONFIRMED") {
+          delete booking.user.phone;
+        }
+      }
+
+      // Owner already knows their own phone; no special handling needed
+      return booking;
+    });
+
+    res.json(sanitized);
+  } catch (error) {
+    console.error("Error getting owner bookings:", error);
+    res
+      .status(500)
+      .json({ error: "Failed to fetch owner bookings", message: error.message });
+  }
+};
+
+exports.updateOwnerBookingStatus = async (req, res) => {
+  try {
+    const ownerId = req.user.id;
+    const { status } = req.body;
+
+    if (
+      !status ||
+      !["PENDING", "CONFIRMED", "CANCELLED", "COMPLETED"].includes(status)
+    ) {
+      return res.status(400).json({
+        error:
+          "Invalid status. Must be PENDING, CONFIRMED, CANCELLED, or COMPLETED",
+      });
+    }
+
+    const booking = await bookingService.updateBookingStatusByOwner(
+      req.params.id,
+      ownerId,
+      status
+    );
+
+    if (!booking) {
+      return res.status(404).json({
+        error: "Booking not found or you don't have permission to update it",
+      });
+    }
+
+    const sanitized = { ...booking };
+
+    if (sanitized.user) {
+      sanitized.user = { ...sanitized.user };
+      if (sanitized.status !== "CONFIRMED") {
+        delete sanitized.user.phone;
+      }
+    }
+
+    res.json(sanitized);
+  } catch (error) {
+    console.error("Error updating owner booking status:", error);
+    res.status(500).json({
+      error: "Failed to update booking status",
+      message: error.message,
+    });
   }
 };

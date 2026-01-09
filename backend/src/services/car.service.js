@@ -3,14 +3,46 @@ const prisma = new PrismaClient();
 
 exports.getAllCars = () => {
   return prisma.car.findMany({
-    include: { owner: true },
+    include: {
+      owner: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          image: true,
+          // phone intentionally excluded from general car listing
+        },
+      },
+    },
   });
 };
 
 exports.getCar = (id) => {
   return prisma.car.findUnique({
     where: { id: Number(id) },
-    include: { owner: true, reviews: { include: { user: true } } },
+    include: {
+      owner: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          image: true,
+          // phone intentionally excluded here; it is shared via bookings logic only
+        },
+      },
+      reviews: {
+        include: {
+          user: {
+            select: {
+              id: true,
+              name: true,
+              image: true,
+              // phone intentionally excluded from public reviews
+            },
+          },
+        },
+      },
+    },
   });
 };
 
