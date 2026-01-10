@@ -13,7 +13,7 @@ const LandingPage = () => {
         const fetchFeaturedCars = async () => {
             try {
                 const response = await carAPI.getAllCars({ limit: 8 });
-                setFeaturedCars(response.cars || []);
+                setFeaturedCars(Array.isArray(response) ? response : response.cars || []);
             } catch (error) {
                 console.error('Failed to fetch featured cars:', error);
                 // Use mock data for demo

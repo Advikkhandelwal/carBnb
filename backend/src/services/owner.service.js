@@ -10,8 +10,24 @@ exports.addCar = (ownerId, data) => {
       engine: data.engine,
       fuelType: data.fuelType,
       color: data.color,
-      pricePerDay: data.pricePerDay,
+      pricePerDay: Number(data.pricePerDay),
       location: data.location,
+      image: data.image ?? null,
+    },
+    include: {
+      owner: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          image: true,
+        },
+      },
+      reviews: {
+        select: {
+          rating: true,
+        },
+      },
     },
   });
 };

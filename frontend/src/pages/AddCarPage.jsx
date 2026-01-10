@@ -14,8 +14,8 @@ const AddCarPage = () => {
         color: '',
         pricePerDay: '',
         location: '',
-        image: '',
     });
+    const [imageFile, setImageFile] = useState(null);
 
     const handleChange = (e) => {
         setFormData({
@@ -24,12 +24,27 @@ const AddCarPage = () => {
         });
     };
 
+    const handleImageChange = (e) => {
+        if (e.target.files && e.target.files[0]) {
+            setImageFile(e.target.files[0]);
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
 
         try {
-            await carAPI.createCar(formData);
+            const data = new FormData();
+            Object.keys(formData).forEach(key => {
+                data.append(key, formData[key]);
+            });
+
+            if (imageFile) {
+                data.append('image', imageFile);
+            }
+
+            await carAPI.createCar(data);
             alert('Car added successfully!');
             navigate('/dashboard');
         } catch (error) {
@@ -171,18 +186,17 @@ const AddCarPage = () => {
 
                         <div className="form-group">
                             <label htmlFor="image" className="form-label">
-                                Image URL
+                                Car Image
                             </label>
                             <input
-                                type="url"
+                                type="file"
                                 id="image"
                                 name="image"
-                                value={formData.image}
-                                onChange={handleChange}
+                                onChange={handleImageChange}
                                 className="form-input"
-                                placeholder="https://example.com/car-image.jpg"
+                                accept="image/*"
                             />
-                            <p className="form-help">Provide a URL to your car's image</p>
+                            <p className="form-help">Upload an image of your car</p>
                         </div>
 
                         <div className="form-actions">

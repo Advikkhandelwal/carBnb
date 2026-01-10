@@ -16,8 +16,8 @@ router.get("/", authenticateToken, getBookings);
 router.get("/:id", authenticateToken, getBookingById);
 router.put("/:id", authenticateToken, updateBooking);
 router.delete("/:id", authenticateToken, cancelBooking);
-router.get("/check-availability/:carId", authenticateToken, checkAvailability);
-router.get("/car/:carId", authenticateToken, getCarBookings);
+router.get("/check-availability/:carId", checkAvailability); // Public endpoint for checking availability
+router.get("/car/:carId", getCarBookings); // Public endpoint for car booking calendar
 
 module.exports = router;
 

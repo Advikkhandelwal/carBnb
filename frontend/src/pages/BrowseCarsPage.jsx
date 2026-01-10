@@ -30,7 +30,7 @@ const BrowseCarsPage = () => {
             if (filters.fuelType) queryFilters.fuelType = filters.fuelType;
 
             const response = await carAPI.getAllCars(queryFilters);
-            setCars(response.cars || []);
+            setCars(Array.isArray(response) ? response : response.cars || []);
         } catch (error) {
             console.error('Failed to fetch cars:', error);
             // Use mock data

@@ -1,13 +1,37 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
-exports.addReview = (userId, data) => {
+exports.addReview = async (userId, data) => {
+  const { carId, bookingId, rating, comment } = data;
+
+  // Verify booking exists, is completed, belongs to user, and hasn't been reviewed
+  const booking = await prisma.booking.findFirst({
+    where: {
+      id: Number(bookingId),
+      userId,
+      carId: Number(carId),
+      status: "COMPLETED",
+    },
+    include: {
+      review: true,
+    },
+  });
+
+  if (!booking) {
+    throw new Error("Booking not found, not completed, or doesn't belong to you");
+  }
+
+  if (booking.review) {
+    throw new Error("This booking has already been reviewed");
+  }
+
   return prisma.review.create({
     data: {
       userId,
-      carId: data.carId,
-      rating: data.rating,
-      comment: data.comment,
+      carId: Number(carId),
+      bookingId: Number(bookingId),
+      rating,
+      comment,
     },
   });
 };
@@ -109,21 +133,17 @@ exports.checkReviewEligibility = async (userId, bookingId) => {
     where: {
       id: Number(bookingId),
       userId,
-      status: 'COMPLETED',
-    }
+      status: "COMPLETED",
+    },
+    include: {
+      review: true,
+    },
   });
 
   if (!booking) return false;
 
-  // Check if a review already exists for this booking (assuming one review per booking rule, 
-  // though schema links review to car+user, not booking directly. 
-  // For strict one-review-per-booking, we'd need a bookingId on Review model.
-  // For now, allow if they have completed a booking.)
+  // Check if review already exists for this booking
+  if (booking.review) return false;
 
-  // Refined logic: Check if they ALREADY reviewed this car based on this specific booking? 
-  // Since Review schema doesn't have bookingId, we can just return true if they have a completed booking.
-  // The frontend can enforce one-time UI or we can check if they reviewed this CAR recently.
-
-  // Let's implement a simple check: return true if booking is completed.
   return true;
 };

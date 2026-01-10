@@ -2,10 +2,10 @@ const reviewService = require("../services/review.service");
 
 exports.addReview = async (req, res) => {
   try {
-    const { carId, rating, comment } = req.body;
+    const { carId, bookingId, rating, comment } = req.body;
 
-    if (!carId || !rating) {
-      return res.status(400).json({ error: "Missing required fields: carId, rating" });
+    if (!carId || !bookingId || !rating) {
+      return res.status(400).json({ error: "Missing required fields: carId, bookingId, rating" });
     }
 
     if (rating < 1 || rating > 5) {
@@ -17,6 +17,14 @@ exports.addReview = async (req, res) => {
     res.status(201).json(review);
   } catch (error) {
     console.error("Error adding review:", error);
+    
+    // Handle specific errors
+    if (error.message.includes("not found") || 
+        error.message.includes("not completed") ||
+        error.message.includes("already been reviewed")) {
+      return res.status(400).json({ error: error.message });
+    }
+    
     res.status(500).json({ error: "Failed to add review", message: error.message });
   }
 };

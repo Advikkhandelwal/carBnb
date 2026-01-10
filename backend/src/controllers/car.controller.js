@@ -33,3 +33,69 @@ exports.searchCars = async (req, res) => {
     res.status(500).json({ error: "Failed to search cars", message: error.message });
   }
 };
+
+exports.createCar = async (req, res) => {
+  try {
+    const { brand, model, engine, fuelType, color, pricePerDay, location, image } = req.body;
+    const ownerId = req.user.id; // From authenticateToken middleware
+
+    if (!brand || !model || !fuelType || !pricePerDay || !location) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    const carData = {
+      brand,
+      model,
+      engine,
+      fuelType,
+      color,
+      pricePerDay: parseFloat(pricePerDay),
+      location,
+      image,
+      ownerId,
+      // Note: Cars are immediately visible - no 'available' field needed
+    };
+
+    const newCar = await carService.createCar(carData);
+    res.status(201).json(newCar);
+  } catch (error) {
+    console.error("Error creating car:", error);
+    res.status(500).json({ error: "Failed to create car", message: error.message });
+  }
+};
+
+exports.updateCar = async (req, res) => {
+  try {
+    const carId = req.params.id;
+    const ownerId = req.user.id;
+
+    // Authorization check
+    const existingCar = await carService.getCar(carId);
+    if (!existingCar) return res.status(404).json({ error: "Car not found" });
+    if (existingCar.ownerId !== ownerId) return res.status(403).json({ error: "Unauthorized" });
+
+    const updatedCar = await carService.updateCar(carId, req.body);
+    res.json(updatedCar);
+  } catch (error) {
+    console.error("Error updating car:", error);
+    res.status(500).json({ error: "Failed to update car", message: error.message });
+  }
+};
+
+exports.deleteCar = async (req, res) => {
+  try {
+    const carId = req.params.id;
+    const ownerId = req.user.id;
+
+    // Authorization check
+    const existingCar = await carService.getCar(carId);
+    if (!existingCar) return res.status(404).json({ error: "Car not found" });
+    if (existingCar.ownerId !== ownerId) return res.status(403).json({ error: "Unauthorized" });
+
+    await carService.deleteCar(carId);
+    res.json({ message: "Car deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting car:", error);
+    res.status(500).json({ error: "Failed to delete car", message: error.message });
+  }
+};

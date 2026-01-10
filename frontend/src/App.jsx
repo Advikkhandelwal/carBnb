@@ -15,6 +15,8 @@ import BookingHistoryPage from './pages/BookingHistoryPage';
 import OwnerDashboard from './pages/OwnerDashboard';
 import AddCarPage from './pages/AddCarPage';
 import ProfilePage from './pages/ProfilePage';
+import EditProfilePage from './pages/EditProfilePage';
+import WriteReviewPage from './pages/WriteReviewPage';
 
 import './App.css';
 
@@ -55,6 +57,22 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <ProfilePage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/profile/edit"
+                element={
+                  <ProtectedRoute>
+                    <EditProfilePage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/review/:bookingId"
+                element={
+                  <ProtectedRoute>
+                    <WriteReviewPage />
                   </ProtectedRoute>
                 }
               />

@@ -1,8 +1,8 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
-exports.getAllCars = () => {
-  return prisma.car.findMany({
+exports.getAllCars = async () => {
+  const cars = await prisma.car.findMany({
     include: {
       owner: {
         select: {
@@ -13,12 +13,34 @@ exports.getAllCars = () => {
           // phone intentionally excluded from general car listing
         },
       },
+      reviews: {
+        select: {
+          rating: true,
+        },
+      },
     },
+    orderBy: { createdAt: 'desc' }, // Show newest cars first
+  });
+
+  // Calculate average rating for each car
+  return cars.map((car) => {
+    const ratings = car.reviews.map((r) => r.rating);
+    const averageRating =
+      ratings.length > 0
+        ? ratings.reduce((sum, r) => sum + r, 0) / ratings.length
+        : 0;
+
+    const { reviews, ...carWithoutReviews } = car;
+    return {
+      ...carWithoutReviews,
+      averageRating: Math.round(averageRating * 10) / 10, // Round to 1 decimal
+      reviewCount: reviews.length,
+    };
   });
 };
 
-exports.getCar = (id) => {
-  return prisma.car.findUnique({
+exports.getCar = async (id) => {
+  const car = await prisma.car.findUnique({
     where: { id: Number(id) },
     include: {
       owner: {
@@ -41,14 +63,30 @@ exports.getCar = (id) => {
             },
           },
         },
+        orderBy: { createdAt: 'desc' },
       },
     },
   });
+
+  if (!car) return null;
+
+  // Calculate average rating
+  const ratings = car.reviews.map((r) => r.rating);
+  const averageRating =
+    ratings.length > 0
+      ? ratings.reduce((sum, r) => sum + r, 0) / ratings.length
+      : 0;
+
+  return {
+    ...car,
+    averageRating: Math.round(averageRating * 10) / 10,
+    reviewCount: car.reviews.length,
+  };
 };
 
-exports.searchCars = (filters) => {
+exports.searchCars = async (filters) => {
   const where = {};
-  
+
   if (filters.location) {
     where.location = { contains: filters.location };
   }
@@ -67,10 +105,59 @@ exports.searchCars = (filters) => {
   if (filters.maxPrice !== undefined) {
     where.pricePerDay = { ...where.pricePerDay, lte: parseFloat(filters.maxPrice) };
   }
-  
-  return prisma.car.findMany({
+
+  const cars = await prisma.car.findMany({
     where,
-    include: { owner: true },
+    include: {
+      owner: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          image: true,
+        },
+      },
+      reviews: {
+        select: {
+          rating: true,
+        },
+      },
+    },
     orderBy: { createdAt: 'desc' },
+  });
+
+  // Calculate average rating for each car
+  return cars.map((car) => {
+    const ratings = car.reviews.map((r) => r.rating);
+    const averageRating =
+      ratings.length > 0
+        ? ratings.reduce((sum, r) => sum + r, 0) / ratings.length
+        : 0;
+
+    const { reviews, ...carWithoutReviews } = car;
+    return {
+      ...carWithoutReviews,
+      averageRating: Math.round(averageRating * 10) / 10,
+      reviewCount: reviews.length,
+    };
+  });
+};
+
+exports.createCar = async (carData) => {
+  return prisma.car.create({
+    data: carData,
+  });
+};
+
+exports.updateCar = async (id, carData) => {
+  return prisma.car.update({
+    where: { id: Number(id) },
+    data: carData,
+  });
+};
+
+exports.deleteCar = async (id) => {
+  return prisma.car.delete({
+    where: { id: Number(id) },
   });
 };

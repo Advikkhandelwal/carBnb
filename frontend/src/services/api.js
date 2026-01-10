@@ -10,9 +10,13 @@ const getAuthToken = () => {
 const fetchWithAuth = async (url, options = {}) => {
     const token = getAuthToken();
     const headers = {
-        'Content-Type': 'application/json',
         ...options.headers,
     };
+
+    // Only set Content-Type to application/json if not already set and body is not FormData
+    if (!headers['Content-Type'] && !(options.body instanceof FormData)) {
+        headers['Content-Type'] = 'application/json';
+    }
 
     if (token) {
         headers['Authorization'] = `Bearer ${token}`;
@@ -71,16 +75,22 @@ export const carAPI = {
     },
 
     createCar: async (carData) => {
-        return fetchWithAuth('/cars', {
+        // Creating a car is an owner/host action, so it should go through the owner routes
+        const isFormData = carData instanceof FormData;
+
+        return fetchWithAuth('/owner/cars', {
             method: 'POST',
-            body: JSON.stringify(carData),
+            body: isFormData ? carData : JSON.stringify(carData),
+            headers: isFormData ? {} : { 'Content-Type': 'application/json' }, // Let browser set boundary for FormData
         });
     },
 
     updateCar: async (id, carData) => {
+        const isFormData = carData instanceof FormData;
         return fetchWithAuth(`/cars/${id}`, {
             method: 'PUT',
-            body: JSON.stringify(carData),
+            body: isFormData ? carData : JSON.stringify(carData),
+            headers: isFormData ? {} : { 'Content-Type': 'application/json' },
         });
     },
 
@@ -109,6 +119,13 @@ export const carAPI = {
         }
 
         return response.json();
+    },
+
+    updateBookingStatus: async (id, status) => {
+        return fetchWithAuth(`/owner/bookings/${id}/status`, {
+            method: 'PUT',
+            body: JSON.stringify({ status }),
+        });
     },
 };
 

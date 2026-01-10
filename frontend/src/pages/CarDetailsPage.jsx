@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { carAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
-import ReviewCard from '../components/ReviewCard';
+import ReviewList from '../components/ReviewList';
 import './CarDetailsPage.css';
 
 const CarDetailsPage = () => {
@@ -204,6 +204,11 @@ const CarDetailsPage = () => {
                                     </div>
                                 </div>
                             </div>
+                        </section>
+
+                        {/* Reviews */}
+                        <section className="details-section">
+                            <ReviewList carId={car._id || car.id} />
                         </section>
                     </div>
 

@@ -29,10 +29,6 @@ exports.register = async (req, res) => {
   }
 };
 
-res.status(500).json({ error: "Failed to register user", message: error.message });
-  }
-};
-
 exports.googleAuth = async (req, res) => {
   try {
     const { token } = req.body;
@@ -97,7 +93,13 @@ exports.logout = async (req, res) => {
 
 exports.updateMe = async (req, res) => {
   try {
-    const { name, phone, image } = req.body;
+    const { name, phone } = req.body;
+    let image = req.body.image;
+
+    if (req.file) {
+      const baseUrl = process.env.API_URL || "http://localhost:3001";
+      image = `${baseUrl}/uploads/${req.file.filename}`;
+    }
 
     const user = await authService.updateUserProfile(req.user.id, {
       name,

@@ -5,7 +5,6 @@ const {
   login,
   getMe,
   logout,
-  logout,
   updateMe,
   googleAuth,
 } = require("../controllers/auth.controller");

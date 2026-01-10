@@ -15,7 +15,7 @@ const BookingHistoryPage = () => {
     const fetchBookings = async () => {
         try {
             const response = await bookingAPI.getUserBookings();
-            setBookings(response.bookings || []);
+            setBookings(Array.isArray(response) ? response : response.bookings || []);
         } catch (error) {
             console.error('Failed to fetch bookings:', error);
             // Mock data for demo
@@ -98,7 +98,10 @@ const BookingHistoryPage = () => {
                         {filteredBookings.map(booking => (
                             <div key={booking._id} className="booking-card">
                                 <div className="booking-car-image">
-                                    <img src={booking.car?.image} alt={`${booking.car?.brand} ${booking.car?.model}`} />
+                                    <img
+                                        src={booking.car?.image || 'https://via.placeholder.com/400x300?text=Car+Image'}
+                                        alt={`${booking.car?.brand} ${booking.car?.model}`}
+                                    />
                                 </div>
 
                                 <div className="booking-details">

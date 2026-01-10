@@ -87,6 +87,10 @@ export const AuthProvider = ({ children }) => {
         setUser(null);
     };
 
+    const updateUser = (userData) => {
+        setUser(prev => ({ ...prev, ...userData }));
+    };
+
     const value = {
         user,
         loading,
@@ -95,6 +99,7 @@ export const AuthProvider = ({ children }) => {
         signup,
         googleLogin,
         logout,
+        updateUser,
         isAuthenticated: !!user,
     };
 
