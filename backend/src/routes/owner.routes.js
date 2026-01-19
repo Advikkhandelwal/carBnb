@@ -8,6 +8,7 @@ const {
   updateOwnerBookingStatus,
 } = require("../controllers/owner.controller");
 const upload = require("../middlewares/upload.middleware");
+const { authenticateToken } = require("../middlewares/auth.middleware");
 
 // All owner routes require authentication
 router.post("/cars", authenticateToken, upload.single('image'), addCar);
