@@ -36,7 +36,7 @@
 .car-card-badge {
     position: absolute;
     top: var(--spacing-md);
-    right: var(--spacing-md);
+    left: var(--spacing-md);
     background-color: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
     padding: var(--spacing-xs) var(--spacing-md);
@@ -46,6 +46,39 @@
     color: var(--color-black);
     text-transform: uppercase;
     box-shadow: var(--shadow-sm);
+}
+
+.car-card-favorite-btn {
+    position: absolute;
+    top: var(--spacing-md);
+    right: var(--spacing-md);
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.9);
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s ease;
+}
+
+.car-card-favorite-btn:hover {
+    transform: scale(1.1);
+    background: white;
+}
+
+.car-card-favorite-btn svg {
+    color: #ccc;
+    transition: color 0.2s;
+}
+
+.car-card-favorite-btn.active svg {
+    color: #e31b23;
+    fill: #e31b23;
 }
 
 .car-card-content {

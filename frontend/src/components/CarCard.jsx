@@ -1,8 +1,11 @@
 import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useAuth } from '../context/AuthContext';
 import './CarCard.css';
 
 const CarCard = ({ car }) => {
     const {
+        id, // Assuming ID might be 'id' or '_id', handled below
         _id,
         brand,
         model,
@@ -14,8 +17,58 @@ const CarCard = ({ car }) => {
         fuelType,
     } = car;
 
+    const carId = id || _id;
+    const { isAuthenticated, token } = useAuth();
+    const [isFavorite, setIsFavorite] = useState(false);
+
+    useEffect(() => {
+        const checkFavorite = async () => {
+            if (!isAuthenticated || !token) return;
+            try {
+                const response = await fetch(`http://localhost:3001/favorites/check/${carId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    setIsFavorite(data.isFavorite);
+                }
+            } catch (error) {
+                console.error("Error checking favorite:", error);
+            }
+        };
+        checkFavorite();
+    }, [carId, isAuthenticated, token]);
+
+    const toggleFavorite = async (e) => {
+        e.preventDefault(); // Prevent Link navigation
+        if (!isAuthenticated) return;
+
+        // Optimistic update
+        const newState = !isFavorite;
+        setIsFavorite(newState);
+
+        try {
+            const response = await fetch('http://localhost:3001/favorites', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ carId })
+            });
+
+            if (!response.ok) {
+                // Revert on failure
+                setIsFavorite(!newState);
+            }
+        } catch (error) {
+            console.error("Error toggling favorite:", error);
+            setIsFavorite(!newState);
+        }
+    };
+
     return (
-        <Link to={`/cars/${_id}`} className="car-card">
+        <Link to={`/cars/${carId}`} className="car-card">
             <div className="car-card-image-wrapper">
                 <img
                     src={image || 'https://via.placeholder.com/400x300?text=Car+Image'}
@@ -23,6 +76,18 @@ const CarCard = ({ car }) => {
                     className="car-card-image"
                 />
                 <div className="car-card-badge">{fuelType}</div>
+
+                {isAuthenticated && (
+                    <button
+                        className={`car-card-favorite-btn ${isFavorite ? 'active' : ''}`}
+                        onClick={toggleFavorite}
+                        aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
+                    >
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                        </svg>
+                    </button>
+                )}
             </div>
 
             <div className="car-card-content">

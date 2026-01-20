@@ -17,6 +17,7 @@ import AddCarPage from './pages/AddCarPage';
 import ProfilePage from './pages/ProfilePage';
 import EditProfilePage from './pages/EditProfilePage';
 import WriteReviewPage from './pages/WriteReviewPage';
+import FavoritesPage from './pages/FavoritesPage';
 
 import './App.css';
 
@@ -49,6 +50,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <BookingHistoryPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/favorites"
+                element={
+                  <ProtectedRoute>
+                    <FavoritesPage />
                   </ProtectedRoute>
                 }
               />

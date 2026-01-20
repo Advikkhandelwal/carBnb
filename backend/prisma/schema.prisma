@@ -19,6 +19,19 @@ model User {
     cars     Car[]
     bookings Booking[]
     reviews  Review[]
+    favorites Favorite[]
+}
+
+model Favorite {
+    id        Int      @id @default(autoincrement())
+    userId    Int
+    carId     Int
+    createdAt DateTime @default(now())
+
+    user    User @relation(fields: [userId], references: [id])
+    car     Car  @relation(fields: [carId], references: [id])
+
+    @@unique([userId, carId])
 }
 
 model Car {
@@ -37,6 +50,7 @@ model Car {
     owner    User      @relation(fields: [ownerId], references: [id])
     bookings Booking[]
     reviews  Review[]
+    favoritedBy Favorite[]
 }
 
 model Booking {

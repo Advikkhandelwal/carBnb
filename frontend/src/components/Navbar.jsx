@@ -60,6 +60,9 @@ const Navbar = () => {
                                         <Link to="/bookings" className="navbar-dropdown-item" onClick={() => setShowDropdown(false)}>
                                             My Bookings
                                         </Link>
+                                        <Link to="/favorites" className="navbar-dropdown-item" onClick={() => setShowDropdown(false)}>
+                                            My Favorites
+                                        </Link>
                                         <Link to="/dashboard" className="navbar-dropdown-item" onClick={() => setShowDropdown(false)}>
                                             Owner Dashboard
                                         </Link>
@@ -103,6 +106,9 @@ const Navbar = () => {
                                 </Link>
                                 <Link to="/bookings" className="navbar-mobile-item" onClick={() => setShowMobileMenu(false)}>
                                     My Bookings
+                                </Link>
+                                <Link to="/favorites" className="navbar-mobile-item" onClick={() => setShowMobileMenu(false)}>
+                                    My Favorites
                                 </Link>
                                 <Link to="/dashboard" className="navbar-mobile-item" onClick={() => setShowMobileMenu(false)}>
                                     Owner Dashboard
