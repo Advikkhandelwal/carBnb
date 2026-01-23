@@ -32,7 +32,7 @@ const BookingHistoryPage = () => {
             await bookingAPI.cancelBooking(bookingId);
             // Update local state
             setBookings(bookings.map(b =>
-                b._id === bookingId ? { ...b, status: 'cancelled' } : b
+                (b.id || b._id) === bookingId ? { ...b, status: 'cancelled' } : b
             ));
         } catch (error) {
             alert('Failed to cancel booking');
@@ -96,7 +96,7 @@ const BookingHistoryPage = () => {
                 ) : (
                     <div className="bookings-list">
                         {filteredBookings.map(booking => (
-                            <div key={booking._id} className="booking-card">
+                            <div key={booking.id || booking._id} className="booking-card">
                                 <div className="booking-car-image">
                                     <img
                                         src={booking.car?.image || 'https://via.placeholder.com/400x300?text=Car+Image'}
@@ -143,32 +143,33 @@ const BookingHistoryPage = () => {
                                         </div>
                                     </div>
 
-                                    {booking.status === 'confirmed' && booking.owner?.phone && (
+                                    {booking.status === 'CONFIRMED' && booking.car?.owner?.phone && (
                                         <div className="contact-info">
                                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                                             </svg>
-                                            <span>Owner: {booking.owner.phone}</span>
+                                            <span>Owner Phone: {booking.car.owner.phone}</span>
                                         </div>
                                     )}
+                                    {/* Handle case where owner nested differently or just in confirmed logic above */}
 
                                     <div className="booking-actions">
-                                        <Link to={`/cars/${booking.car?._id}`} className="btn btn-secondary btn-sm">
+                                        <Link to={`/cars/${booking.car?.id || booking.car?._id}`} className="btn btn-secondary btn-sm">
                                             View Car
                                         </Link>
 
-                                        {booking.status === 'pending' && (
+                                        {booking.status === 'PENDING' && (
                                             <button
-                                                onClick={() => handleCancelBooking(booking._id)}
+                                                onClick={() => handleCancelBooking(booking.id || booking._id)}
                                                 className="btn btn-outline btn-sm"
                                             >
                                                 Cancel Booking
                                             </button>
                                         )}
 
-                                        {booking.status === 'completed' && !booking.reviewed && (
+                                        {booking.status === 'COMPLETED' && !booking.reviewed && (
                                             <Link
-                                                to={`/review/${booking._id}`}
+                                                to={`/review/${booking.id || booking._id}`}
                                                 className="btn btn-primary btn-sm"
                                             >
                                                 Write Review

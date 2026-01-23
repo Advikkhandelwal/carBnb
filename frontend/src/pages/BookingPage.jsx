@@ -43,7 +43,7 @@ const BookingPage = () => {
         setLoading(true);
         try {
             const bookingData = {
-                carId: car._id,
+                carId: car.id || car._id,
                 startDate,
                 endDate,
                 totalPrice,

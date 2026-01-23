@@ -2,6 +2,13 @@ const carService = require("../services/car.service");
 
 exports.getCars = async (req, res) => {
   try {
+    // If query parameters exist (excluding empty ones), treat as search
+    const hasFilters = Object.values(req.query).some(val => val && val.trim() !== '');
+
+    if (hasFilters) {
+      return exports.searchCars(req, res);
+    }
+
     const cars = await carService.getAllCars();
     res.json(cars);
   } catch (error) {

@@ -38,7 +38,7 @@ const OwnerDashboard = () => {
 
         try {
             await carAPI.deleteCar(carId);
-            setMyCars(myCars.filter(car => car._id !== carId));
+            setMyCars(myCars.filter(car => (car.id || car._id) !== carId));
         } catch (error) {
             alert('Failed to delete car');
         }
@@ -51,7 +51,7 @@ const OwnerDashboard = () => {
 
             // Update local state
             setBookings(bookings.map(b =>
-                b._id === bookingId ? updatedBooking : b
+                (b.id || b._id) === bookingId ? updatedBooking : b
             ));
 
             alert(`Booking ${status.toLowerCase()} successfully`);
@@ -121,7 +121,7 @@ const OwnerDashboard = () => {
                                 </div>
                             ) : (
                                 myCars.map(car => (
-                                    <div key={car._id} className="car-item">
+                                    <div key={car.id || car._id} className="car-item">
                                         <img
                                             src={car.image || 'https://via.placeholder.com/400x300?text=Car+Image'}
                                             alt={`${car.brand} ${car.model}`}
@@ -133,10 +133,10 @@ const OwnerDashboard = () => {
                                             <p className="car-item-price">₹{car.pricePerDay}/day</p>
                                         </div>
                                         <div className="car-item-actions">
-                                            <Link to={`/edit-car/${car._id}`} className="btn btn-secondary btn-sm">
+                                            <Link to={`/edit-car/${car.id || car._id}`} className="btn btn-secondary btn-sm">
                                                 Edit
                                             </Link>
-                                            <button onClick={() => handleDeleteCar(car._id)} className="btn btn-outline btn-sm">
+                                            <button onClick={() => handleDeleteCar(car.id || car._id)} className="btn btn-outline btn-sm">
                                                 Delete
                                             </button>
                                         </div>
@@ -153,7 +153,7 @@ const OwnerDashboard = () => {
                                 </div>
                             ) : (
                                 bookings.map(booking => (
-                                    <div key={booking._id} className="booking-item">
+                                    <div key={booking.id || booking._id} className="booking-item">
                                         <div className="booking-info">
                                             <h4>{booking.car?.brand} {booking.car?.model}</h4>
 
@@ -184,13 +184,13 @@ const OwnerDashboard = () => {
                                             {booking.status === 'PENDING' && (
                                                 <div className="booking-actions">
                                                     <button
-                                                        onClick={() => handleBookingAction(booking._id, 'CONFIRMED')}
+                                                        onClick={() => handleBookingAction(booking.id || booking._id, 'CONFIRMED')}
                                                         className="btn btn-success btn-sm"
                                                     >
                                                         Confirm
                                                     </button>
                                                     <button
-                                                        onClick={() => handleBookingAction(booking._id, 'CANCELLED')}
+                                                        onClick={() => handleBookingAction(booking.id || booking._id, 'CANCELLED')}
                                                         className="btn btn-danger btn-sm"
                                                     >
                                                         Reject
