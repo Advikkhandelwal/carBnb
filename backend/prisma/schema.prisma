@@ -44,6 +44,8 @@ model Car {
     color       String
     pricePerDay Float
     location    String
+    transmission String  @default("Manual") // "Manual" or "Automatic"
+    seats       Int     @default(5)
     image       String?
     createdAt   DateTime @default(now())
 
@@ -83,7 +85,8 @@ model Review {
 
 enum BookingStatus {
     PENDING
-    CONFIRMED
-    CANCELLED
+    APPROVED
+    ACTIVE
     COMPLETED
+    CANCELLED
 }

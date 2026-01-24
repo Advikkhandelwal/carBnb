@@ -99,11 +99,56 @@ exports.searchCars = async (filters) => {
   if (filters.fuelType) {
     where.fuelType = filters.fuelType;
   }
-  if (filters.minPrice !== undefined) {
+  if (filters.transmission) {
+    where.transmission = filters.transmission;
+  }
+  if (filters.seats) {
+    where.seats = { gte: parseInt(filters.seats) }; // Filter by minimum seats
+  }
+  if (filters.minPrice !== undefined && filters.minPrice !== '') {
     where.pricePerDay = { ...where.pricePerDay, gte: parseFloat(filters.minPrice) };
   }
-  if (filters.maxPrice !== undefined) {
+  if (filters.maxPrice !== undefined && filters.maxPrice !== '') {
     where.pricePerDay = { ...where.pricePerDay, lte: parseFloat(filters.maxPrice) };
+  }
+
+  // Availability Check
+  if (filters.startDate && filters.endDate) {
+    const start = new Date(filters.startDate);
+    const end = new Date(filters.endDate);
+
+    if (!isNaN(start.getTime()) && !isNaN(end.getTime())) {
+      where.bookings = {
+        none: {
+          status: 'CONFIRMED', // Only check against confirmed bookings
+          OR: [
+            {
+              // Case 1: Booking starts during the requested period
+              startDate: { gte: start, lte: end }
+            },
+            {
+              // Case 2: Booking ends during the requested period
+              endDate: { gte: start, lte: end }
+            },
+            {
+              // Case 3: Booking covers the entire requested period
+              startDate: { lte: start },
+              endDate: { gte: end }
+            }
+          ]
+        }
+      };
+    }
+  }
+
+  let orderBy = { createdAt: 'desc' }; // Default sort
+  if (filters.sortBy) {
+    if (filters.sortBy === 'priceAsc') {
+      orderBy = { pricePerDay: 'asc' };
+    } else if (filters.sortBy === 'priceDesc') {
+      orderBy = { pricePerDay: 'desc' };
+    }
+    // Rating sort needs to be handled in application layer or different query as it is computed
   }
 
   const cars = await prisma.car.findMany({
@@ -123,11 +168,11 @@ exports.searchCars = async (filters) => {
         },
       },
     },
-    orderBy: { createdAt: 'desc' },
+    orderBy: filters.sortBy !== 'rating' ? orderBy : undefined,
   });
 
   // Calculate average rating for each car
-  return cars.map((car) => {
+  let mappedCars = cars.map((car) => {
     const ratings = car.reviews.map((r) => r.rating);
     const averageRating =
       ratings.length > 0
@@ -141,6 +186,13 @@ exports.searchCars = async (filters) => {
       reviewCount: reviews.length,
     };
   });
+
+  // Handle rating sort purely in memory
+  if (filters.sortBy === 'rating') {
+    mappedCars.sort((a, b) => b.averageRating - a.averageRating);
+  }
+
+  return mappedCars;
 };
 
 exports.createCar = async (carData) => {

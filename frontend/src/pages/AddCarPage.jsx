@@ -14,6 +14,8 @@ const AddCarPage = () => {
         color: '',
         pricePerDay: '',
         location: '',
+        transmission: 'Manual',
+        seats: '5',
     });
     const [imageFile, setImageFile] = useState(null);
 
@@ -130,6 +132,46 @@ const AddCarPage = () => {
                                     <option value="Diesel">Diesel</option>
                                     <option value="Electric">Electric</option>
                                     <option value="Hybrid">Hybrid</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="form-row">
+                            <div className="form-group">
+                                <label htmlFor="transmission" className="form-label">
+                                    Transmission *
+                                </label>
+                                <select
+                                    id="transmission"
+                                    name="transmission"
+                                    value={formData.transmission}
+                                    onChange={handleChange}
+                                    className="form-select"
+                                    required
+                                >
+                                    <option value="">Select transmission</option>
+                                    <option value="Manual">Manual</option>
+                                    <option value="Automatic">Automatic</option>
+                                </select>
+                            </div>
+
+                            <div className="form-group">
+                                <label htmlFor="seats" className="form-label">
+                                    Seats *
+                                </label>
+                                <select
+                                    id="seats"
+                                    name="seats"
+                                    value={formData.seats}
+                                    onChange={handleChange}
+                                    className="form-select"
+                                    required
+                                >
+                                    <option value="2">2</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                    <option value="7">7</option>
+                                    <option value="8">8+</option>
                                 </select>
                             </div>
                         </div>

@@ -3,6 +3,13 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import './CarCard.css';
 
+// Inline style for simplicity, or we can update the CSS file.
+// Ideally should update CSS file, but for now let's add class logic.
+// Please update CarCard.css if possible, or I will use style object.
+
+// Actually I will assume CarCard.css exists and I can append to it.
+// Waiting for next tool call to update CSS.
+
 const CarCard = ({ car }) => {
     const {
         id, // Assuming ID might be 'id' or '_id', handled below
@@ -15,6 +22,8 @@ const CarCard = ({ car }) => {
         rating = 4.5,
         reviewCount = 0,
         fuelType,
+        transmission,
+        seats,
     } = car;
 
     const carId = id || _id;
@@ -104,6 +113,17 @@ const CarCard = ({ car }) => {
                             <span className="car-card-reviews">({reviewCount})</span>
                         )}
                     </div>
+                </div>
+
+                <div className="car-card-specs">
+                    <span className="spec-item">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5" /><path d="M12 19l-7-7 7-7" /></svg>
+                        {transmission || 'Manual'}
+                    </span>
+                    <span className="spec-item">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 21h10" /><path d="M12 21V13" /><path d="M21 21v-7a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v7" /></svg>
+                        {seats || 5} Seats
+                    </span>
                 </div>
 
                 <p className="car-card-location">

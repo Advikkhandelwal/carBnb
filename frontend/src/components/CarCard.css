@@ -154,3 +154,22 @@
     font-size: var(--font-size-sm);
     color: var(--color-gray-700);
 }
+.car-card-specs {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 8px;
+    padding: 0 12px;
+    color: #666;
+    font-size: 0.85rem;
+}
+
+.spec-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.spec-item svg {
+    width: 14px;
+    height: 14px;
+}

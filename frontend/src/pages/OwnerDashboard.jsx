@@ -4,7 +4,8 @@ import { carAPI, bookingAPI } from '../services/api';
 import './OwnerDashboard.css';
 
 const OwnerDashboard = () => {
-    const [activeTab, setActiveTab] = useState('cars');
+    // Tabs: pending (requests), active (upcoming/ongoing), history (completed/cancelled), earnings
+    const [activeTab, setActiveTab] = useState('active'); // Default to active rentals
     const [myCars, setMyCars] = useState([]);
     const [bookings, setBookings] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -19,15 +20,14 @@ const OwnerDashboard = () => {
             if (activeTab === 'cars') {
                 const response = await carAPI.getOwnerCars();
                 setMyCars(Array.isArray(response) ? response : response.cars || []);
-            } else if (activeTab === 'bookings') {
+            } else if (['pending', 'active', 'history', 'earnings'].includes(activeTab)) {
                 const response = await bookingAPI.getOwnerBookings();
                 setBookings(Array.isArray(response) ? response : response.bookings || []);
             }
         } catch (error) {
             console.error('Failed to fetch data:', error);
-            // Use mock data
-            if (activeTab === 'cars') setMyCars(getMockCars());
-            if (activeTab === 'bookings') setBookings(getMockBookings());
+            setBookings([]);
+            setMyCars([]);
         } finally {
             setLoading(false);
         }
@@ -46,7 +46,7 @@ const OwnerDashboard = () => {
 
     const handleBookingAction = async (bookingId, status) => {
         try {
-            // Using carAPI.updateBookingStatus because we added it there
+            // carAPI.updateBookingStatus handles strict checks on backend
             const updatedBooking = await carAPI.updateBookingStatus(bookingId, status);
 
             // Update local state
@@ -54,7 +54,7 @@ const OwnerDashboard = () => {
                 (b.id || b._id) === bookingId ? updatedBooking : b
             ));
 
-            alert(`Booking ${status.toLowerCase()} successfully`);
+            alert(`Booking marked as ${status.toLowerCase()} successfully`);
         } catch (error) {
             console.error('Failed to update booking:', error);
             alert(error.message || 'Failed to update booking status');
@@ -63,9 +63,28 @@ const OwnerDashboard = () => {
 
     const calculateEarnings = () => {
         return bookings
-            .filter(b => b.status === 'confirmed')
+            .filter(b => b.status === 'COMPLETED')
             .reduce((sum, b) => sum + (b.totalPrice || 0), 0);
     };
+
+    const filterBookingsByTab = () => {
+        const sortedBookings = [...bookings].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+        switch (activeTab) {
+            case 'pending':
+                return sortedBookings.filter(b => b.status === 'PENDING');
+            case 'active':
+                return sortedBookings.filter(b => ['APPROVED', 'ACTIVE'].includes(b.status));
+            case 'history':
+                return sortedBookings.filter(b => ['COMPLETED', 'CANCELLED'].includes(b.status));
+            case 'earnings':
+                return sortedBookings; // Used for calcs
+            default:
+                return [];
+        }
+    };
+
+    const filteredBookings = filterBookingsByTab();
 
     return (
         <div className="owner-dashboard">
@@ -83,16 +102,31 @@ const OwnerDashboard = () => {
                 {/* Tabs */}
                 <div className="dashboard-tabs">
                     <button
+                        className={`tab ${activeTab === 'active' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('active')}
+                    >
+                        Active & Upcoming
+                    </button>
+                    <button
+                        className={`tab ${activeTab === 'pending' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('pending')}
+                    >
+                        Requests
+                        {bookings.filter(b => b.status === 'PENDING').length > 0 && (
+                            <span className="badge">{bookings.filter(b => b.status === 'PENDING').length}</span>
+                        )}
+                    </button>
+                    <button
+                        className={`tab ${activeTab === 'history' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('history')}
+                    >
+                        History
+                    </button>
+                    <button
                         className={`tab ${activeTab === 'cars' ? 'active' : ''}`}
                         onClick={() => setActiveTab('cars')}
                     >
                         My Cars
-                    </button>
-                    <button
-                        className={`tab ${activeTab === 'bookings' ? 'active' : ''}`}
-                        onClick={() => setActiveTab('bookings')}
-                    >
-                        Bookings
                     </button>
                     <button
                         className={`tab ${activeTab === 'earnings' ? 'active' : ''}`}
@@ -144,15 +178,36 @@ const OwnerDashboard = () => {
                                 ))
                             )}
                         </div>
-                    ) : activeTab === 'bookings' ? (
+                    ) : activeTab === 'earnings' ? (
+                        <div className="earnings-view">
+                            <div className="earnings-card">
+                                <h3>Total Earnings</h3>
+                                <p className="earnings-amount">₹{calculateEarnings()}</p>
+                            </div>
+                            <div className="earnings-stats">
+                                <div className="stat-card">
+                                    <div className="stat-value">{bookings.filter(b => b.status === 'COMPLETED').length}</div>
+                                    <div className="stat-label">Completed Trips</div>
+                                </div>
+                                <div className="stat-card">
+                                    <div className="stat-value">{bookings.filter(b => b.status === 'ACTIVE').length}</div>
+                                    <div className="stat-label">Active Trips</div>
+                                </div>
+                                <div className="stat-card">
+                                    <div className="stat-value">{bookings.filter(b => b.status === 'PENDING').length}</div>
+                                    <div className="stat-label">Pending Requests</div>
+                                </div>
+                            </div>
+                        </div>
+                    ) : (
                         <div className="bookings-list">
-                            {bookings.length === 0 ? (
+                            {filteredBookings.length === 0 ? (
                                 <div className="empty-state">
-                                    <h3>No bookings yet</h3>
-                                    <p>Your booking requests will appear here</p>
+                                    <h3>No bookings found</h3>
+                                    <p>No bookings in this category.</p>
                                 </div>
                             ) : (
-                                bookings.map(booking => (
+                                filteredBookings.map(booking => (
                                     <div key={booking.id || booking._id} className="booking-item">
                                         <div className="booking-info">
                                             <h4>{booking.car?.brand} {booking.car?.model}</h4>
@@ -181,47 +236,46 @@ const OwnerDashboard = () => {
                                             <span className={`status-badge ${booking.status}`}>{booking.status}</span>
                                             <p className="booking-price">₹{booking.totalPrice}</p>
 
-                                            {booking.status === 'PENDING' && (
-                                                <div className="booking-actions">
+                                            <div className="booking-actions">
+                                                {booking.status === 'PENDING' && (
+                                                    <>
+                                                        <button
+                                                            onClick={() => handleBookingAction(booking.id || booking._id, 'APPROVED')}
+                                                            className="btn btn-success btn-sm"
+                                                        >
+                                                            Approve
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleBookingAction(booking.id || booking._id, 'CANCELLED')}
+                                                            className="btn btn-danger btn-sm"
+                                                        >
+                                                            Reject
+                                                        </button>
+                                                    </>
+                                                )}
+
+                                                {booking.status === 'APPROVED' && (
                                                     <button
-                                                        onClick={() => handleBookingAction(booking.id || booking._id, 'CONFIRMED')}
+                                                        onClick={() => handleBookingAction(booking.id || booking._id, 'ACTIVE')}
+                                                        className="btn btn-primary btn-sm"
+                                                    >
+                                                        Start Trip
+                                                    </button>
+                                                )}
+
+                                                {booking.status === 'ACTIVE' && (
+                                                    <button
+                                                        onClick={() => handleBookingAction(booking.id || booking._id, 'COMPLETED')}
                                                         className="btn btn-success btn-sm"
                                                     >
-                                                        Confirm
+                                                        Complete Trip
                                                     </button>
-                                                    <button
-                                                        onClick={() => handleBookingAction(booking.id || booking._id, 'CANCELLED')}
-                                                        className="btn btn-danger btn-sm"
-                                                    >
-                                                        Reject
-                                                    </button>
-                                                </div>
-                                            )}
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
                                 ))
                             )}
-                        </div>
-                    ) : (
-                        <div className="earnings-view">
-                            <div className="earnings-card">
-                                <h3>Total Earnings</h3>
-                                <p className="earnings-amount">₹{calculateEarnings()}</p>
-                            </div>
-                            <div className="earnings-stats">
-                                <div className="stat-card">
-                                    <div className="stat-value">{bookings.filter(b => b.status === 'confirmed').length}</div>
-                                    <div className="stat-label">Completed Bookings</div>
-                                </div>
-                                <div className="stat-card">
-                                    <div className="stat-value">{bookings.filter(b => b.status === 'pending').length}</div>
-                                    <div className="stat-label">Pending Requests</div>
-                                </div>
-                                <div className="stat-card">
-                                    <div className="stat-value">{myCars.length}</div>
-                                    <div className="stat-label">Active Listings</div>
-                                </div>
-                            </div>
                         </div>
                     )}
                 </div>

@@ -20,10 +20,11 @@ exports.createBooking = async (userId, data) => {
     throw new Error("End date must be after start date");
   }
 
-  // Check for date conflicts with existing PENDING or CONFIRMED bookings
+  // Check for date conflicts with existing APPROVED or ACTIVE bookings
+  // We allow overlapping PENDING requests so the owner can choose
   const isAvailable = await exports.checkAvailability(data.carId, data.startDate, data.endDate);
   if (!isAvailable) {
-    throw new Error("Car is not available for the selected dates");
+    throw new Error("Car is not available for the selected dates (Already Booked)");
   }
 
   return prisma.booking.create({
@@ -199,13 +200,14 @@ exports.updateBookingStatusByOwner = async (id, ownerId, status) => {
     return null;
   }
 
-  // If confirming, re-check for date conflicts (excluding this booking)
-  if (status === "CONFIRMED") {
+  // If APPROVING, we must strictly check if there are overlaps with other APPROVED/ACTIVE bookings
+  // This prevents double booking when multiple PENDING requests exist
+  if (status === "APPROVED") {
     const conflictingBooking = await prisma.booking.findFirst({
       where: {
         carId: booking.carId,
         id: { not: Number(id) },
-        status: { in: ["PENDING", "CONFIRMED"] },
+        status: { in: ["APPROVED", "ACTIVE"] },
         OR: [
           {
             startDate: { lte: booking.endDate },
@@ -216,7 +218,7 @@ exports.updateBookingStatusByOwner = async (id, ownerId, status) => {
     });
 
     if (conflictingBooking) {
-      throw new Error("Cannot confirm: Car is already booked for these dates");
+      throw new Error("Cannot approve: Car is already booked (Approved/Active) for these dates");
     }
   }
 
@@ -261,7 +263,7 @@ exports.checkAvailability = async (carId, startDate, endDate) => {
   const overlappingBooking = await prisma.booking.findFirst({
     where: {
       carId: Number(carId),
-      status: { in: ["PENDING", "CONFIRMED"] }, // Ignore CANCELLED and COMPLETED (though COMPLETED should effectively be in the past)
+      status: { in: ["APPROVED", "ACTIVE"] }, // Only block if APPROVED or ACTIVE
       OR: [
         {
           startDate: { lte: end },
@@ -278,7 +280,7 @@ exports.getCarBookings = (carId) => {
   return prisma.booking.findMany({
     where: {
       carId: Number(carId),
-      status: { in: ["PENDING", "CONFIRMED", "COMPLETED"] },
+      status: { in: ["PENDING", "APPROVED", "ACTIVE", "COMPLETED"] },
     },
     select: {
       id: true,
@@ -296,7 +298,7 @@ exports.autoCompletePastBookings = async () => {
 
   const updated = await prisma.booking.updateMany({
     where: {
-      status: "CONFIRMED",
+      status: "ACTIVE",
       endDate: { lt: today },
     },
     data: {

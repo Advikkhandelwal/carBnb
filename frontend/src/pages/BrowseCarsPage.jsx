@@ -10,10 +10,14 @@ const BrowseCarsPage = () => {
     const [loading, setLoading] = useState(true);
     const [filters, setFilters] = useState({
         location: searchParams.get('location') || '',
-        minPrice: '',
-        maxPrice: '',
-        fuelType: '',
-        carType: '',
+        startDate: searchParams.get('startDate') || '',
+        endDate: searchParams.get('endDate') || '',
+        minPrice: searchParams.get('minPrice') || '',
+        maxPrice: searchParams.get('maxPrice') || '',
+        fuelType: searchParams.get('fuelType') || '',
+        transmission: searchParams.get('transmission') || '',
+        seats: searchParams.get('seats') || '',
+        sortBy: searchParams.get('sortBy') || '',
     });
 
     useEffect(() => {
@@ -23,18 +27,16 @@ const BrowseCarsPage = () => {
     const fetchCars = async () => {
         setLoading(true);
         try {
-            const queryFilters = {};
-            if (filters.location) queryFilters.location = filters.location;
-            if (filters.minPrice) queryFilters.minPrice = filters.minPrice;
-            if (filters.maxPrice) queryFilters.maxPrice = filters.maxPrice;
-            if (filters.fuelType) queryFilters.fuelType = filters.fuelType;
+            // Remove empty filters
+            const queryFilters = Object.fromEntries(
+                Object.entries(filters).filter(([_, v]) => v !== '')
+            );
 
             const response = await carAPI.getAllCars(queryFilters);
             setCars(Array.isArray(response) ? response : response.cars || []);
         } catch (error) {
             console.error('Failed to fetch cars:', error);
-            // Use mock data
-            setCars(getMockCars());
+            setCars([]); // Clear cars on error
         } finally {
             setLoading(false);
         }
@@ -57,13 +59,18 @@ const BrowseCarsPage = () => {
     };
 
     const handleClearFilters = () => {
-        setFilters({
+        const initialFilters = {
             location: '',
+            startDate: '',
+            endDate: '',
             minPrice: '',
             maxPrice: '',
             fuelType: '',
-            carType: '',
-        });
+            transmission: '',
+            seats: '',
+            sortBy: '',
+        };
+        setFilters(initialFilters);
         setSearchParams({});
     };
 
@@ -90,6 +97,28 @@ const BrowseCarsPage = () => {
                                 placeholder="Enter city or area"
                                 className="form-input"
                             />
+                        </div>
+
+                        <div className="filter-group">
+                            <label className="filter-label">Dates</label>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                                <input
+                                    type="date"
+                                    name="startDate"
+                                    value={filters.startDate}
+                                    onChange={handleFilterChange}
+                                    className="form-input"
+                                    placeholder="Start Date"
+                                />
+                                <input
+                                    type="date"
+                                    name="endDate"
+                                    value={filters.endDate}
+                                    onChange={handleFilterChange}
+                                    className="form-input"
+                                    placeholder="End Date"
+                                />
+                            </div>
                         </div>
 
                         <div className="filter-group">
@@ -132,18 +161,32 @@ const BrowseCarsPage = () => {
                         </div>
 
                         <div className="filter-group">
-                            <label className="filter-label">Car Type</label>
+                            <label className="filter-label">Transmission</label>
                             <select
-                                name="carType"
-                                value={filters.carType}
+                                name="transmission"
+                                value={filters.transmission}
                                 onChange={handleFilterChange}
                                 className="form-select"
                             >
                                 <option value="">All</option>
-                                <option value="Sedan">Sedan</option>
-                                <option value="SUV">SUV</option>
-                                <option value="Hatchback">Hatchback</option>
-                                <option value="Luxury">Luxury</option>
+                                <option value="Manual">Manual</option>
+                                <option value="Automatic">Automatic</option>
+                            </select>
+                        </div>
+
+                        <div className="filter-group">
+                            <label className="filter-label">Min Seats</label>
+                            <select
+                                name="seats"
+                                value={filters.seats}
+                                onChange={handleFilterChange}
+                                className="form-select"
+                            >
+                                <option value="">Any</option>
+                                <option value="2">2+</option>
+                                <option value="4">4+</option>
+                                <option value="5">5+</option>
+                                <option value="7">7+</option>
                             </select>
                         </div>
 
@@ -155,22 +198,48 @@ const BrowseCarsPage = () => {
                     {/* Cars Grid */}
                     <main className="browse-content">
                         <div className="browse-header">
-                            <h1 className="browse-title">Available Cars</h1>
-                            <p className="browse-count">
-                                {loading ? 'Loading...' : `${cars.length} cars available`}
-                            </p>
+                            <div>
+                                <h1 className="browse-title">Available Cars</h1>
+                                <p className="browse-count">
+                                    {loading ? 'Loading...' : `${cars.length} cars available`}
+                                </p>
+                            </div>
+
+                            <div className="sort-container">
+                                <select
+                                    name="sortBy"
+                                    value={filters.sortBy}
+                                    onChange={(e) => {
+                                        const newFilters = { ...filters, sortBy: e.target.value };
+                                        setFilters(newFilters);
+                                        // Trigger fetch immediately for sort if desired, or let user click apply. 
+                                        // For better UX, let's auto-apply sort or keep it consistent with Apply button.
+                                        // Here we just update state, user clicks Apply. 
+                                        // Actually commonly sort is instant. Let's make it instant? 
+                                        // The current architecture depends on searchParams. 
+                                        // For simplicity, let's stick to "Apply" for everything OR auto-apply sort.
+                                    }}
+                                    className="form-select"
+                                    style={{ width: '200px' }}
+                                >
+                                    <option value="">Sort By: Newest</option>
+                                    <option value="priceAsc">Price: Low to High</option>
+                                    <option value="priceDesc">Price: High to Low</option>
+                                    <option value="rating">Top Rated</option>
+                                </select>
+                            </div>
                         </div>
 
                         {loading ? (
                             <div className="cars-grid">
-                                {[...Array(12)].map((_, i) => (
+                                {[...Array(6)].map((_, i) => (
                                     <div key={i} className="skeleton-card"></div>
                                 ))}
                             </div>
                         ) : cars.length > 0 ? (
                             <div className="cars-grid">
                                 {cars.map((car) => (
-                                    <CarCard key={car._id} car={car} />
+                                    <CarCard key={car.id} car={car} />
                                 ))}
                             </div>
                         ) : (
@@ -180,7 +249,7 @@ const BrowseCarsPage = () => {
                                     <path d="m21 21-4.35-4.35" strokeWidth="2" strokeLinecap="round" />
                                 </svg>
                                 <h3>No cars found</h3>
-                                <p>Try adjusting your filters or search in a different location</p>
+                                <p>Try adjusting your filters to find what you're looking for.</p>
                                 <button onClick={handleClearFilters} className="btn btn-primary">
                                     Clear Filters
                                 </button>
@@ -192,75 +261,5 @@ const BrowseCarsPage = () => {
         </div>
     );
 };
-
-// Mock data
-const getMockCars = () => [
-    {
-        _id: '1',
-        brand: 'Honda',
-        model: 'City',
-        pricePerDay: 1500,
-        location: 'Mumbai, Maharashtra',
-        image: 'https://images.unsplash.com/photo-1590362891991-f776e747a588?w=400',
-        rating: 4.8,
-        reviewCount: 24,
-        fuelType: 'Petrol',
-    },
-    {
-        _id: '2',
-        brand: 'Hyundai',
-        model: 'Creta',
-        pricePerDay: 2000,
-        location: 'Delhi, NCR',
-        image: 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=400',
-        rating: 4.7,
-        reviewCount: 18,
-        fuelType: 'Diesel',
-    },
-    {
-        _id: '3',
-        brand: 'Maruti',
-        model: 'Swift',
-        pricePerDay: 1200,
-        location: 'Bangalore, Karnataka',
-        image: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=400',
-        rating: 4.6,
-        reviewCount: 32,
-        fuelType: 'Petrol',
-    },
-    {
-        _id: '4',
-        brand: 'Tata',
-        model: 'Nexon',
-        pricePerDay: 1800,
-        location: 'Pune, Maharashtra',
-        image: 'https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=400',
-        rating: 4.9,
-        reviewCount: 15,
-        fuelType: 'Electric',
-    },
-    {
-        _id: '5',
-        brand: 'Mahindra',
-        model: 'XUV700',
-        pricePerDay: 2500,
-        location: 'Hyderabad, Telangana',
-        image: 'https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?w=400',
-        rating: 4.8,
-        reviewCount: 21,
-        fuelType: 'Diesel',
-    },
-    {
-        _id: '6',
-        brand: 'Kia',
-        model: 'Seltos',
-        pricePerDay: 2200,
-        location: 'Chennai, Tamil Nadu',
-        image: 'https://images.unsplash.com/photo-1617654112368-307921291f42?w=400',
-        rating: 4.7,
-        reviewCount: 19,
-        fuelType: 'Petrol',
-    },
-];
 
 export default BrowseCarsPage;

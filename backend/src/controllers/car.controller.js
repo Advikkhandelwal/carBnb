@@ -43,7 +43,7 @@ exports.searchCars = async (req, res) => {
 
 exports.createCar = async (req, res) => {
   try {
-    const { brand, model, engine, fuelType, color, pricePerDay, location, image } = req.body;
+    const { brand, model, engine, fuelType, color, pricePerDay, location, transmission, seats, image } = req.body;
     const ownerId = req.user.id; // From authenticateToken middleware
 
     if (!brand || !model || !fuelType || !pricePerDay || !location) {
@@ -58,6 +58,8 @@ exports.createCar = async (req, res) => {
       color,
       pricePerDay: parseFloat(pricePerDay),
       location,
+      transmission: transmission || 'Manual', // Default to Manual if not provided
+      seats: seats ? parseInt(seats) : 5,    // Default to 5 seats
       image,
       ownerId,
       // Note: Cars are immediately visible - no 'available' field needed

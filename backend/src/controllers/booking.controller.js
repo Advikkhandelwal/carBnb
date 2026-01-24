@@ -29,7 +29,8 @@ exports.getBookings = async (req, res) => {
 
       if (booking.car && booking.car.owner) {
         booking.car = { ...booking.car, owner: { ...booking.car.owner } };
-        if (booking.status !== "CONFIRMED") {
+        // Phone visibility: Owner sees renter phone if APPROVED or ACTIVE
+        if (!['APPROVED', 'ACTIVE', 'COMPLETED'].includes(booking.status)) {
           delete booking.car.owner.phone;
         }
       }
@@ -58,7 +59,7 @@ exports.getBookingById = async (req, res) => {
 
     if (sanitized.car && sanitized.car.owner) {
       sanitized.car = { ...sanitized.car, owner: { ...sanitized.car.owner } };
-      if (sanitized.status !== "CONFIRMED") {
+      if (!['APPROVED', 'ACTIVE', 'COMPLETED'].includes(sanitized.status)) {
         delete sanitized.car.owner.phone;
       }
     }
@@ -67,7 +68,7 @@ exports.getBookingById = async (req, res) => {
     // but we can still prevent accidental exposure if this response is shared.
     if (sanitized.user) {
       sanitized.user = { ...sanitized.user };
-      if (sanitized.status !== "CONFIRMED") {
+      if (!['APPROVED', 'ACTIVE', 'COMPLETED'].includes(sanitized.status)) {
         delete sanitized.user.phone;
       }
     }
@@ -85,8 +86,8 @@ exports.updateBooking = async (req, res) => {
     const { startDate, endDate, status } = req.body;
 
     // Validate status if provided
-    if (status && !['PENDING', 'CONFIRMED', 'CANCELLED', 'COMPLETED'].includes(status)) {
-      return res.status(400).json({ error: "Invalid status. Must be PENDING, CONFIRMED, CANCELLED, or COMPLETED" });
+    if (status && !['PENDING', 'APPROVED', 'ACTIVE', 'CANCELLED', 'COMPLETED'].includes(status)) {
+      return res.status(400).json({ error: "Invalid status. Must be PENDING, APPROVED, ACTIVE, CANCELLED, or COMPLETED" });
     }
 
     const booking = await bookingService.updateBooking(req.params.id, userId, req.body);
@@ -99,13 +100,13 @@ exports.updateBooking = async (req, res) => {
 
     if (sanitized.car && sanitized.car.owner) {
       sanitized.car = { ...sanitized.car, owner: { ...sanitized.car.owner } };
-      if (sanitized.status !== "CONFIRMED") {
+      if (!['APPROVED', 'ACTIVE', 'COMPLETED'].includes(sanitized.status)) {
         delete sanitized.car.owner.phone;
       }
     }
     if (sanitized.user) {
       sanitized.user = { ...sanitized.user };
-      if (sanitized.status !== "CONFIRMED") {
+      if (!['APPROVED', 'ACTIVE', 'COMPLETED'].includes(sanitized.status)) {
         delete sanitized.user.phone;
       }
     }
