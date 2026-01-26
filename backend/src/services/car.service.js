@@ -201,6 +201,45 @@ exports.createCar = async (carData) => {
   });
 };
 
+exports.getCarsNearby = async ({ lat, lng, radiusInKm = 10 }) => {
+  const latitude = parseFloat(lat);
+  const longitude = parseFloat(lng);
+  const radius = parseFloat(radiusInKm);
+
+  // Haversine formula to find cars within radius
+  // 6371 is Earth's radius in km
+  const cars = await prisma.$queryRaw`
+    SELECT 
+      c.*,
+      (
+        6371 * acos(
+          cos(radians(${latitude})) * cos(radians(c.latitude)) *
+          cos(radians(c.longitude) - radians(${longitude})) +
+          sin(radians(${latitude})) * sin(radians(c.latitude))
+        )
+      ) AS distance
+    FROM Car c
+    WHERE c.latitude IS NOT NULL AND c.longitude IS NOT NULL
+    HAVING distance < ${radius}
+    ORDER BY distance ASC;
+  `;
+
+  // Fetch owners separately as $queryRaw returns raw data not relation objects directly in the same structure usually
+  // Or we can just hydrate the result. For simplicity, let's just return the cars with distance.
+  // Actually, to match frontend expectations, we might want to attach owner info.
+  // Let's do a quick enrichment.
+
+  const enrichedCars = await Promise.all(cars.map(async (car) => {
+    // Re-fetch standard structure including owner and reviews if needed, or just partial
+    // For performance, let's just return what we have plus owner minimal info if possible.
+    // Given the complexity of mixing raw query with Prisma relations, fetching by IDs is safest/cleanest.
+    const fullCar = await exports.getCar(car.id);
+    return { ...fullCar, distance: car.distance };
+  }));
+
+  return enrichedCars;
+};
+
 exports.updateCar = async (id, carData) => {
   return prisma.car.update({
     where: { id: Number(id) },

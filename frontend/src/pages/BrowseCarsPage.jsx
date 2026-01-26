@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import CarCard from '../components/CarCard';
 import { carAPI } from '../services/api';
+import MapComponent from '../components/MapComponent';
 import './BrowseCarsPage.css';
 
 const BrowseCarsPage = () => {
@@ -212,12 +213,6 @@ const BrowseCarsPage = () => {
                                     onChange={(e) => {
                                         const newFilters = { ...filters, sortBy: e.target.value };
                                         setFilters(newFilters);
-                                        // Trigger fetch immediately for sort if desired, or let user click apply. 
-                                        // For better UX, let's auto-apply sort or keep it consistent with Apply button.
-                                        // Here we just update state, user clicks Apply. 
-                                        // Actually commonly sort is instant. Let's make it instant? 
-                                        // The current architecture depends on searchParams. 
-                                        // For simplicity, let's stick to "Apply" for everything OR auto-apply sort.
                                     }}
                                     className="form-select"
                                     style={{ width: '200px' }}
@@ -229,6 +224,11 @@ const BrowseCarsPage = () => {
                                 </select>
                             </div>
                         </div>
+
+                        {/* Map View */}
+                        {!loading && cars.length > 0 && (
+                            <MapComponent cars={cars} />
+                        )}
 
                         {loading ? (
                             <div className="cars-grid">

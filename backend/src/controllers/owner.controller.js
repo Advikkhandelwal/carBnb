@@ -61,7 +61,9 @@ exports.addCar = async (req, res) => {
 exports.getOwnerCars = async (req, res) => {
   try {
     const ownerId = req.user.id;
+    console.log(`🚗 Fetching cars for owner ID: ${ownerId}`);
     const cars = await ownerService.getCars(ownerId);
+    console.log(`🚗 Found ${cars.length} cars for owner ${ownerId}`);
     res.json(cars);
   } catch (error) {
     console.error("Error getting owner cars:", error);
@@ -115,15 +117,23 @@ exports.getOwnerBookings = async (req, res) => {
     const ownerId = req.user.id;
     const bookings = await bookingService.getOwnerBookings(ownerId);
 
+    console.log(`📱 Processing ${bookings.length} bookings for owner ${ownerId}`);
+
     const sanitized = bookings.map((b) => {
       const booking = { ...b };
 
-      // From owner's perspective, renter phone is only shared when CONFIRMED
+      // From owner's perspective, renter phone is only shared when APPROVED or ACTIVE
       if (booking.user) {
+        console.log(`📱 Booking ${booking.id}: status=${booking.status}, user.phone=${booking.user.phone}`);
         booking.user = { ...booking.user };
-        if (booking.status !== "CONFIRMED") {
+        if (!["APPROVED", "ACTIVE", "COMPLETED"].includes(booking.status)) {
+          console.log(`📱 Booking ${booking.id}: Hiding phone (status not approved/active/completed)`);
           delete booking.user.phone;
+        } else {
+          console.log(`📱 Booking ${booking.id}: Phone should be visible: ${booking.user.phone}`);
         }
+      } else {
+        console.log(`📱 Booking ${booking.id}: No user object found!`);
       }
 
       // Owner already knows their own phone; no special handling needed
@@ -143,14 +153,16 @@ exports.updateOwnerBookingStatus = async (req, res) => {
   try {
     const ownerId = req.user.id;
     const { status } = req.body;
+    console.log(`Updating booking ${req.params.id} status to ${status}`); // Debug log
 
     if (
       !status ||
-      !["PENDING", "CONFIRMED", "CANCELLED", "COMPLETED"].includes(status)
+      !["PENDING", "APPROVED", "ACTIVE", "CANCELLED", "COMPLETED"].includes(status)
     ) {
+      console.log(`Invalid status rejected: ${status}`); // Debug log
       return res.status(400).json({
-        error:
-          "Invalid status. Must be PENDING, CONFIRMED, CANCELLED, or COMPLETED",
+        error: "Invalid status",
+        message: "Invalid status. Must be PENDING, APPROVED, ACTIVE, CANCELLED, or COMPLETED"
       });
     }
 
@@ -173,7 +185,7 @@ exports.updateOwnerBookingStatus = async (req, res) => {
 
     if (sanitized.user) {
       sanitized.user = { ...sanitized.user };
-      if (sanitized.status !== "CONFIRMED") {
+      if (!["APPROVED", "ACTIVE", "COMPLETED"].includes(sanitized.status)) {
         delete sanitized.user.phone;
       }
     }
@@ -184,7 +196,7 @@ exports.updateOwnerBookingStatus = async (req, res) => {
 
     // Handle conflict error
     if (error.message.includes("Cannot confirm") || error.message.includes("already booked")) {
-      return res.status(409).json({ error: error.message });
+      return res.status(409).json({ error: error.message, message: error.message });
     }
 
     res.status(500).json({

@@ -47,6 +47,8 @@ model Car {
     transmission String  @default("Manual") // "Manual" or "Automatic"
     seats       Int     @default(5)
     image       String?
+    latitude    Float?
+    longitude   Float?
     createdAt   DateTime @default(now())
 
     owner    User      @relation(fields: [ownerId], references: [id])

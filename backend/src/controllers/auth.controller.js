@@ -94,6 +94,7 @@ exports.logout = async (req, res) => {
 exports.updateMe = async (req, res) => {
   try {
     const { name, phone } = req.body;
+    console.log(`📞 UPDATE PROFILE REQUEST - User ID: ${req.user.id}, Name: ${name}, Phone: ${phone}`);
     let image = req.body.image;
 
     if (req.file) {
@@ -107,6 +108,7 @@ exports.updateMe = async (req, res) => {
       image,
     });
 
+    console.log(`📞 PROFILE UPDATED - User ${user.id} now has phone: ${user.phone}`);
     res.json(user);
   } catch (error) {
     console.error("Error updating user profile:", error);

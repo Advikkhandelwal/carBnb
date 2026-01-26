@@ -62,6 +62,8 @@ exports.createCar = async (req, res) => {
       seats: seats ? parseInt(seats) : 5,    // Default to 5 seats
       image,
       ownerId,
+      latitude: req.body.latitude ? parseFloat(req.body.latitude) : null,
+      longitude: req.body.longitude ? parseFloat(req.body.longitude) : null,
       // Note: Cars are immediately visible - no 'available' field needed
     };
 
@@ -106,5 +108,21 @@ exports.deleteCar = async (req, res) => {
   } catch (error) {
     console.error("Error deleting car:", error);
     res.status(500).json({ error: "Failed to delete car", message: error.message });
+  }
+};
+
+exports.getNearbyCars = async (req, res) => {
+  try {
+    const { lat, lng, radius } = req.query;
+
+    if (!lat || !lng) {
+      return res.status(400).json({ error: "Latitude and longitude are required" });
+    }
+
+    const cars = await carService.getCarsNearby({ lat, lng, radiusInKm: radius });
+    res.json(cars);
+  } catch (error) {
+    console.error("Error fetching nearby cars:", error);
+    res.status(500).json({ error: "Failed to fetch nearby cars", message: error.message });
   }
 };

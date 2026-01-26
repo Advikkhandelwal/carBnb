@@ -1,14 +1,16 @@
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { bookingAPI } from '../services/api';
+import { bookingAPI, userAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import './BookingPage.css';
 
 const BookingPage = () => {
     const location = useLocation();
     const navigate = useNavigate();
-    const { user } = useAuth();
+    const { user, updateUser } = useAuth();
     const [loading, setLoading] = useState(false);
+    const [showPhoneModal, setShowPhoneModal] = useState(false);
+    const [phoneNumber, setPhoneNumber] = useState('');
     const [bookingConfirmed, setBookingConfirmed] = useState(false);
     const [bookingDetails, setBookingDetails] = useState(null);
 
@@ -39,7 +41,30 @@ const BookingPage = () => {
 
     const days = calculateDays();
 
-    const handleConfirmBooking = async () => {
+    const handleAddPhone = async () => {
+        if (!phoneNumber || phoneNumber.trim() === '') {
+            alert('Please enter a valid phone number');
+            return;
+        }
+
+        try {
+            const formData = new FormData();
+            formData.append('phone', phoneNumber);
+            formData.append('name', user.name);
+
+            const updatedUser = await userAPI.updateProfile(formData);
+            updateUser(updatedUser);
+            setShowPhoneModal(false);
+
+            // Automatically proceed with booking
+            await createBooking();
+        } catch (error) {
+            console.error('Failed to add phone:', error);
+            alert('Failed to add phone number. Please try again.');
+        }
+    };
+
+    const createBooking = async () => {
         setLoading(true);
         try {
             const bookingData = {
@@ -58,6 +83,17 @@ const BookingPage = () => {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleConfirmBooking = async () => {
+        // Check if user has a phone number
+        if (!user?.phone) {
+            setShowPhoneModal(true);
+            return;
+        }
+
+        // User has phone, proceed with booking
+        await createBooking();
     };
 
     if (bookingConfirmed && bookingDetails) {
@@ -229,6 +265,46 @@ const BookingPage = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Phone Number Modal */}
+            {showPhoneModal && (
+                <div className="modal-overlay" onClick={() => setShowPhoneModal(false)}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                        <h2>Add Phone Number</h2>
+                        <p>You need to add a phone number to book a car. This allows the car owner to contact you.</p>
+
+                        <div className="form-group">
+                            <label htmlFor="phone" className="form-label">Phone Number *</label>
+                            <input
+                                type="tel"
+                                id="phone"
+                                value={phoneNumber}
+                                onChange={(e) => setPhoneNumber(e.target.value)}
+                                className="form-input"
+                                placeholder="+91 98765 43210"
+                                autoFocus
+                            />
+                        </div>
+
+                        <div className="modal-actions">
+                            <button
+                                type="button"
+                                onClick={() => setShowPhoneModal(false)}
+                                className="btn btn-secondary"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleAddPhone}
+                                className="btn btn-primary"
+                            >
+                                Add Phone Number
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

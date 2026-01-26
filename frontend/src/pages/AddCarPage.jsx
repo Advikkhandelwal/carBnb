@@ -1,11 +1,15 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { carAPI } from '../services/api';
+import { carAPI, userAPI } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import './AddCarPage.css';
 
 const AddCarPage = () => {
     const navigate = useNavigate();
+    const { user, updateUser } = useAuth();
     const [loading, setLoading] = useState(false);
+    const [showPhoneModal, setShowPhoneModal] = useState(false);
+    const [phoneNumber, setPhoneNumber] = useState('');
     const [formData, setFormData] = useState({
         brand: '',
         model: '',
@@ -14,6 +18,8 @@ const AddCarPage = () => {
         color: '',
         pricePerDay: '',
         location: '',
+        latitude: '',
+        longitude: '',
         transmission: 'Manual',
         seats: '5',
     });
@@ -32,8 +38,30 @@ const AddCarPage = () => {
         }
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    const handleAddPhone = async () => {
+        if (!phoneNumber || phoneNumber.trim() === '') {
+            alert('Please enter a valid phone number');
+            return;
+        }
+
+        try {
+            const formData = new FormData();
+            formData.append('phone', phoneNumber);
+            formData.append('name', user.name);
+
+            const updatedUser = await userAPI.updateProfile(formData);
+            updateUser(updatedUser);
+            setShowPhoneModal(false);
+
+            // Automatically submit the form after phone is added
+            submitCarListing();
+        } catch (error) {
+            console.error('Failed to add phone:', error);
+            alert('Failed to add phone number. Please try again.');
+        }
+    };
+
+    const submitCarListing = async () => {
         setLoading(true);
 
         try {
@@ -55,6 +83,19 @@ const AddCarPage = () => {
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        // Check if user has a phone number
+        if (!user?.phone) {
+            setShowPhoneModal(true);
+            return;
+        }
+
+        // User has phone, proceed with submission
+        await submitCarListing();
     };
 
     return (
@@ -226,6 +267,40 @@ const AddCarPage = () => {
                             />
                         </div>
 
+                        <div className="form-row">
+                            <div className="form-group">
+                                <label htmlFor="latitude" className="form-label">
+                                    Latitude (Optional)
+                                </label>
+                                <input
+                                    type="number"
+                                    step="any"
+                                    id="latitude"
+                                    name="latitude"
+                                    value={formData.latitude}
+                                    onChange={handleChange}
+                                    className="form-input"
+                                    placeholder="e.g., 19.0760"
+                                />
+                            </div>
+
+                            <div className="form-group">
+                                <label htmlFor="longitude" className="form-label">
+                                    Longitude (Optional)
+                                </label>
+                                <input
+                                    type="number"
+                                    step="any"
+                                    id="longitude"
+                                    name="longitude"
+                                    value={formData.longitude}
+                                    onChange={handleChange}
+                                    className="form-input"
+                                    placeholder="e.g., 72.8777"
+                                />
+                            </div>
+                        </div>
+
                         <div className="form-group">
                             <label htmlFor="image" className="form-label">
                                 Car Image
@@ -256,6 +331,46 @@ const AddCarPage = () => {
                     </form>
                 </div>
             </div>
+
+            {/* Phone Number Modal */}
+            {showPhoneModal && (
+                <div className="modal-overlay" onClick={() => setShowPhoneModal(false)}>
+                    <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                        <h2>Add Phone Number</h2>
+                        <p>You need to add a phone number to list a car. This allows renters to contact you after booking.</p>
+
+                        <div className="form-group">
+                            <label htmlFor="phone" className="form-label">Phone Number *</label>
+                            <input
+                                type="tel"
+                                id="phone"
+                                value={phoneNumber}
+                                onChange={(e) => setPhoneNumber(e.target.value)}
+                                className="form-input"
+                                placeholder="+91 98765 43210"
+                                autoFocus
+                            />
+                        </div>
+
+                        <div className="modal-actions">
+                            <button
+                                type="button"
+                                onClick={() => setShowPhoneModal(false)}
+                                className="btn btn-secondary"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleAddPhone}
+                                className="btn btn-primary"
+                            >
+                                Add Phone Number
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

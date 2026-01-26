@@ -19,10 +19,17 @@ const OwnerDashboard = () => {
         try {
             if (activeTab === 'cars') {
                 const response = await carAPI.getOwnerCars();
-                setMyCars(Array.isArray(response) ? response : response.cars || []);
+                const carsData = Array.isArray(response) ? response : response.cars || [];
+                console.log('🚗 Owner cars data received:', carsData);
+                console.log('🚗 Number of cars:', carsData.length);
+                console.log('🚗 First car:', carsData[0]);
+                setMyCars(carsData);
             } else if (['pending', 'active', 'history', 'earnings'].includes(activeTab)) {
                 const response = await bookingAPI.getOwnerBookings();
-                setBookings(Array.isArray(response) ? response : response.bookings || []);
+                const bookingsData = Array.isArray(response) ? response : response.bookings || [];
+                console.log('👤 Owner bookings data received:', bookingsData);
+                console.log('👤 First booking structure:', bookingsData[0]);
+                setBookings(bookingsData);
             }
         } catch (error) {
             console.error('Failed to fetch data:', error);
