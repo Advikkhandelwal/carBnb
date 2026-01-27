@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { carAPI } from '../services/api';
+import { carAPI, bookingAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import ReviewList from '../components/ReviewList';
+import MapComponent from '../components/MapComponent';
+import AvailabilityCalendar from '../components/AvailabilityCalendar';
 import './CarDetailsPage.css';
 
 const CarDetailsPage = () => {
@@ -12,22 +13,51 @@ const CarDetailsPage = () => {
     const [car, setCar] = useState(null);
     const [loading, setLoading] = useState(true);
     const [selectedImage, setSelectedImage] = useState(0);
+    const [carBookings, setCarBookings] = useState([]);
     const [bookingDates, setBookingDates] = useState({
         startDate: '',
         endDate: '',
     });
 
     useEffect(() => {
+        // Set default start/end times if empty
+        // Default: Start tomorrow 10:00 AM, End day after tomorrow 10:00 AM
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        tomorrow.setHours(10, 0, 0, 0);
+
+        const dayAfter = new Date(tomorrow);
+        dayAfter.setDate(dayAfter.getDate() + 1);
+
+        // Format to YYYY-MM-DDTHH:mm
+        const toLocalISO = (date) => {
+            const pad = (n) => n < 10 ? '0' + n : n;
+            return date.getFullYear() + '-' +
+                pad(date.getMonth() + 1) + '-' +
+                pad(date.getDate()) + 'T' +
+                pad(date.getHours()) + ':' +
+                pad(date.getMinutes());
+        };
+
+        setBookingDates({
+            startDate: toLocalISO(tomorrow),
+            endDate: toLocalISO(dayAfter)
+        });
+
         fetchCarDetails();
     }, [id]);
 
     const fetchCarDetails = async () => {
         try {
-            const response = await carAPI.getCarById(id);
-            setCar(response);
+            const [carData, bookingsData] = await Promise.all([
+                carAPI.getCarById(id),
+                bookingAPI.getCarBookings(id) // Fetch bookings for calendar
+            ]);
+            setCar(carData);
+            setCarBookings(Array.isArray(bookingsData) ? bookingsData : []);
         } catch (error) {
-            console.error('Failed to fetch car details:', error);
-            // Use mock data
+            console.error('Failed to fetch car details or bookings:', error);
+            // Use mock data if API fails
             setCar(getMockCarDetails(id));
         } finally {
             setLoading(false);
@@ -39,9 +69,19 @@ const CarDetailsPage = () => {
 
         const start = new Date(bookingDates.startDate);
         const end = new Date(bookingDates.endDate);
-        const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
 
-        return days > 0 ? days * car.pricePerDay : 0;
+        // Calculate difference in milliseconds
+        const diffMs = end - start;
+
+        if (diffMs <= 0) return 0;
+
+        // Calculate duration in hours
+        const hours = diffMs / (1000 * 60 * 60);
+
+        // 24-hour cycle logic: One day price for every 24 hours (or part thereof)
+        const days = Math.max(1, Math.ceil(hours / 24));
+
+        return days * car.pricePerDay;
     };
 
     const handleBookNow = () => {
@@ -206,6 +246,27 @@ const CarDetailsPage = () => {
                             </div>
                         </section>
 
+                        {/* Location Map */}
+                        {car.latitude && car.longitude && (
+                            <section className="details-section">
+                                <h2 className="section-title">Location</h2>
+                                <p style={{ marginBottom: '1rem', color: '#666' }}>
+                                    📍 {car.location}
+                                </p>
+                                <MapComponent
+                                    cars={[car]}
+                                    center={[car.latitude, car.longitude]}
+                                    zoom={14}
+                                />
+                            </section>
+                        )}
+
+                        {/* Availability Calendar */}
+                        <section className="details-section">
+                            <h2 className="section-title">Availability</h2>
+                            <AvailabilityCalendar bookings={carBookings} />
+                        </section>
+
                         {/* Reviews */}
                         <section className="details-section">
                             <ReviewList carId={car._id || car.id} />
@@ -222,22 +283,22 @@ const CarDetailsPage = () => {
 
                             <div className="booking-dates">
                                 <div className="date-field">
-                                    <label>Start Date</label>
+                                    <label>Start Time</label>
                                     <input
-                                        type="date"
+                                        type="datetime-local"
                                         value={bookingDates.startDate}
                                         onChange={(e) => setBookingDates({ ...bookingDates, startDate: e.target.value })}
-                                        min={new Date().toISOString().split('T')[0]}
+                                        min={new Date().toISOString().slice(0, 16)}
                                         className="form-input"
                                     />
                                 </div>
                                 <div className="date-field">
-                                    <label>End Date</label>
+                                    <label>End Time</label>
                                     <input
-                                        type="date"
+                                        type="datetime-local"
                                         value={bookingDates.endDate}
                                         onChange={(e) => setBookingDates({ ...bookingDates, endDate: e.target.value })}
-                                        min={bookingDates.startDate || new Date().toISOString().split('T')[0]}
+                                        min={bookingDates.startDate}
                                         className="form-input"
                                     />
                                 </div>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { bookingAPI } from '../services/api';
+import MapComponent from '../components/MapComponent';
 import './BookingHistoryPage.css';
 
 const BookingHistoryPage = () => {
@@ -145,6 +146,17 @@ const BookingHistoryPage = () => {
                                             <span className="price">₹{booking.totalPrice}</span>
                                         </div>
                                     </div>
+
+                                    {/* Location Map */}
+                                    {booking.car?.latitude && booking.car?.longitude && (
+                                        <div className="booking-map" style={{ marginTop: '1rem', marginBottom: '1rem' }}>
+                                            <MapComponent
+                                                cars={[booking.car]}
+                                                center={[booking.car.latitude, booking.car.longitude]}
+                                                zoom={12}
+                                            />
+                                        </div>
+                                    )}
 
                                     {/* Debug: Check what we have */}
                                     {console.log(`Booking ${booking.id}: status=${booking.status}, hasOwner=${!!booking.car?.owner}, hasPhone=${!!booking.car?.owner?.phone}`)}

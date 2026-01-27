@@ -149,9 +149,7 @@ exports.cancelBooking = async (req, res) => {
 exports.checkAvailability = async (req, res) => {
   try {
     const { carId } = req.params;
-    const { startDate, endDate } = req.query;
-
-    if (!startDate || !endDate) {
+    const { startDate, endDate } = req.query;    if (!startDate || !endDate) {
       return res.status(400).json({ error: "startDate and endDate are required" });
     }
 
