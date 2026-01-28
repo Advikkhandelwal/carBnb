@@ -16,7 +16,7 @@ const ReviewList = ({ carId }) => {
     const fetchReviews = async () => {
         try {
             const data = await reviewAPI.getCarReviews(carId);
-            setReviews(data);
+            setReviews(Array.isArray(data) ? data : []);
         } catch (error) {
             console.error('Failed to fetch reviews:', error);
         } finally {

@@ -5,15 +5,8 @@ exports.createBooking = async (userId, data) => {
   const startDate = new Date(data.startDate);
   const endDate = new Date(data.endDate);
   const today = new Date();
-  // removed setHours to allow exact time comparison if needed, though for 'past' check, midnight usually serves as 'beginning of today'
-  // But for 24h logic, we probably want exact comparisons. 
-  // actually, if we want to allow booking for "10 mins from now", we should use `now`.
-  // Let's leave `today` as is for line 8 to allow "any time today" or modify it to `new Date()` for strict "future only".
-  // Given user request "booking will end on 7 sm tomorrow", the critical part is preserving Time info in DB.
-  // The DB is `DateTime`, so it preserves time.
-  // The main issue might be if `checkAvailability` logic (lines 259+) ignores time.
-  // Prisma `DateTime` comparison includes time.
-  // So NO changes are strictly required in backend for storing time, BUT I will update `autoCompletePastBookings` to use `new Date()` for better precision.
+  today.setHours(0, 0, 0, 0);
+
 
 
   // Validate dates
@@ -303,7 +296,7 @@ exports.getCarBookings = (carId) => {
 // Auto-complete past bookings (should be called periodically or on booking fetch)
 exports.autoCompletePastBookings = async () => {
   const today = new Date();
-  // Use current time for hourly granularity
+  today.setHours(0, 0, 0, 0);
 
   const updated = await prisma.booking.updateMany({
     where: {

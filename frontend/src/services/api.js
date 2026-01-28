@@ -201,7 +201,7 @@ export const reviewAPI = {
     },
 
     getCarReviews: async (carId) => {
-        return fetchWithAuth(`/cars/${carId}/reviews`);
+        return fetchWithAuth(`/reviews/car/${carId}`);
     },
 
     checkEligibility: async (bookingId) => {

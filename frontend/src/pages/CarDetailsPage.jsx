@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { carAPI, bookingAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -20,30 +21,6 @@ const CarDetailsPage = () => {
     });
 
     useEffect(() => {
-        // Set default start/end times if empty
-        // Default: Start tomorrow 10:00 AM, End day after tomorrow 10:00 AM
-        const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        tomorrow.setHours(10, 0, 0, 0);
-
-        const dayAfter = new Date(tomorrow);
-        dayAfter.setDate(dayAfter.getDate() + 1);
-
-        // Format to YYYY-MM-DDTHH:mm
-        const toLocalISO = (date) => {
-            const pad = (n) => n < 10 ? '0' + n : n;
-            return date.getFullYear() + '-' +
-                pad(date.getMonth() + 1) + '-' +
-                pad(date.getDate()) + 'T' +
-                pad(date.getHours()) + ':' +
-                pad(date.getMinutes());
-        };
-
-        setBookingDates({
-            startDate: toLocalISO(tomorrow),
-            endDate: toLocalISO(dayAfter)
-        });
-
         fetchCarDetails();
     }, [id]);
 
@@ -69,19 +46,9 @@ const CarDetailsPage = () => {
 
         const start = new Date(bookingDates.startDate);
         const end = new Date(bookingDates.endDate);
+        const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
 
-        // Calculate difference in milliseconds
-        const diffMs = end - start;
-
-        if (diffMs <= 0) return 0;
-
-        // Calculate duration in hours
-        const hours = diffMs / (1000 * 60 * 60);
-
-        // 24-hour cycle logic: One day price for every 24 hours (or part thereof)
-        const days = Math.max(1, Math.ceil(hours / 24));
-
-        return days * car.pricePerDay;
+        return days > 0 ? days * car.pricePerDay : 0;
     };
 
     const handleBookNow = () => {
@@ -283,22 +250,22 @@ const CarDetailsPage = () => {
 
                             <div className="booking-dates">
                                 <div className="date-field">
-                                    <label>Start Time</label>
+                                    <label>Start Date</label>
                                     <input
-                                        type="datetime-local"
+                                        type="date"
                                         value={bookingDates.startDate}
                                         onChange={(e) => setBookingDates({ ...bookingDates, startDate: e.target.value })}
-                                        min={new Date().toISOString().slice(0, 16)}
+                                        min={new Date().toISOString().split('T')[0]}
                                         className="form-input"
                                     />
                                 </div>
                                 <div className="date-field">
-                                    <label>End Time</label>
+                                    <label>End Date</label>
                                     <input
-                                        type="datetime-local"
+                                        type="date"
                                         value={bookingDates.endDate}
                                         onChange={(e) => setBookingDates({ ...bookingDates, endDate: e.target.value })}
-                                        min={bookingDates.startDate}
+                                        min={bookingDates.startDate || new Date().toISOString().split('T')[0]}
                                         className="form-input"
                                     />
                                 </div>
