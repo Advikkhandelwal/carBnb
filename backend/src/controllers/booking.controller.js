@@ -164,9 +164,7 @@ exports.checkAvailability = async (req, res) => {
 exports.getCarBookings = async (req, res) => {
   try {
     const { carId } = req.params;
-    const bookings = await bookingService.getCarBookings(carId);
-
-    // Sanitize - only return dates and minimal info for calendar visualization
+    const bookings = await bookingService.getCarBookings(carId);    // Sanitize - only return dates and minimal info for calendar visualization
     // Never expose user info or sensitive booking details publicly
     const sanitized = bookings.map(b => ({
       id: b.id,

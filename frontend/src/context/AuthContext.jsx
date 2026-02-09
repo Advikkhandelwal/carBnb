@@ -25,7 +25,10 @@ export const AuthProvider = ({ children }) => {
                     const userData = await authAPI.getCurrentUser();
                     setUser(userData);
                 } catch (err) {
-                    console.error('Auth check failed:', err);
+                    // Only log if it's not a 403/401 (expected for unauthenticated)
+                    if (err.response && ![401, 403].includes(err.response.status)) {
+                        console.error('Auth check failed:', err);
+                    }
                     localStorage.removeItem('token');
                 }
             }

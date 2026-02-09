@@ -62,7 +62,7 @@ const LandingPage = () => {
                     ) : (
                         <div className="cars-grid">
                             {featuredCars.map((car) => (
-                                <CarCard key={car._id} car={car} />
+                                <CarCard key={car.id || car._id} car={car} />
                             ))}
                         </div>
                     )}

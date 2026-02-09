@@ -16,9 +16,9 @@ model User {
     image     String?
     createdAt DateTime @default(now())
 
-    cars     Car[]
-    bookings Booking[]
-    reviews  Review[]
+    cars      Car[]
+    bookings  Booking[]
+    reviews   Review[]
     favorites Favorite[]
 }
 
@@ -28,32 +28,32 @@ model Favorite {
     carId     Int
     createdAt DateTime @default(now())
 
-    user    User @relation(fields: [userId], references: [id])
-    car     Car  @relation(fields: [carId], references: [id])
+    user User @relation(fields: [userId], references: [id])
+    car  Car  @relation(fields: [carId], references: [id])
 
     @@unique([userId, carId])
 }
 
 model Car {
-    id          Int      @id @default(autoincrement())
-    ownerId     Int
-    brand       String
-    model       String
-    engine      String
-    fuelType    String
-    color       String
-    pricePerDay Float
-    location    String
-    transmission String  @default("Manual") // "Manual" or "Automatic"
-    seats       Int     @default(5)
-    image       String?
-    latitude    Float?
-    longitude   Float?
-    createdAt   DateTime @default(now())
+    id           Int      @id @default(autoincrement())
+    ownerId      Int
+    brand        String
+    model        String
+    engine       String
+    fuelType     String
+    color        String
+    pricePerDay  Float
+    location     String
+    transmission String   @default("Manual") // "Manual" or "Automatic"
+    seats        Int      @default(5)
+    image        String?
+    latitude     Float?
+    longitude    Float?
+    createdAt    DateTime @default(now())
 
-    owner    User      @relation(fields: [ownerId], references: [id])
-    bookings Booking[]
-    reviews  Review[]
+    owner       User       @relation(fields: [ownerId], references: [id])
+    bookings    Booking[]
+    reviews     Review[]
     favoritedBy Favorite[]
 }
 
@@ -66,9 +66,9 @@ model Booking {
     status    BookingStatus @default(PENDING)
     createdAt DateTime      @default(now())
 
-    user    User    @relation(fields: [userId], references: [id])
-    car     Car     @relation(fields: [carId], references: [id])
-    review  Review?
+    user   User    @relation(fields: [userId], references: [id])
+    car    Car     @relation(fields: [carId], references: [id])
+    review Review?
 }
 
 model Review {
@@ -80,9 +80,9 @@ model Review {
     bookingId Int      @unique
     createdAt DateTime @default(now())
 
-    user    User     @relation(fields: [userId], references: [id])
-    car     Car      @relation(fields: [carId], references: [id])
-    booking Booking  @relation(fields: [bookingId], references: [id])
+    user    User    @relation(fields: [userId], references: [id])
+    car     Car     @relation(fields: [carId], references: [id])
+    booking Booking @relation(fields: [bookingId], references: [id])
 }
 
 enum BookingStatus {

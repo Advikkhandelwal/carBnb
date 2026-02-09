@@ -239,7 +239,7 @@ const BrowseCarsPage = () => {
                         ) : cars.length > 0 ? (
                             <div className="cars-grid">
                                 {cars.map((car) => (
-                                    <CarCard key={car.id} car={car} />
+                                    <CarCard key={car.id || car._id} car={car} />
                                 ))}
                             </div>
                         ) : (
