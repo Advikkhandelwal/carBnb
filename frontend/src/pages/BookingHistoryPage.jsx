@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { bookingAPI } from '../services/api';
+import { bookingAPI, tripAPI } from '../services/api';
 import MapComponent from '../components/MapComponent';
 import './BookingHistoryPage.css';
 
@@ -182,6 +182,67 @@ const BookingHistoryPage = () => {
                                                 className="btn btn-outline btn-sm"
                                             >
                                                 Cancel Booking
+                                            </button>
+                                        )}
+
+                                        {booking.status === 'APPROVED' && (
+                                            <button
+                                                className="btn btn-primary btn-sm"
+                                                onClick={async () => {
+                                                    const url = prompt('Enter Pre-Trip Photo URL (multiple separated by comma):');
+                                                    if (url) {
+                                                        try {
+                                                            await tripAPI.uploadPhotos({
+                                                                bookingId: booking.id || booking._id,
+                                                                type: 'pre',
+                                                                photos: url.split(',').map(s => s.trim())
+                                                            });
+                                                            // In a real app, this might also trigger status -> ACTIVE
+                                                            // For now, just refresh to show photos
+                                                            fetchBookings();
+                                                        } catch (err) {
+                                                            alert('Upload failed: ' + err.message);
+                                                        }
+                                                    }
+                                                }}
+                                            >
+                                                Start Trip (Upload Photos)
+                                            </button>
+                                        )}
+
+                                        {booking.status === 'ACTIVE' && (
+                                            <button
+                                                className="btn btn-primary btn-sm"
+                                                onClick={async () => {
+                                                    const url = prompt('Enter Post-Trip Photo URL (multiple separated by comma):');
+                                                    if (url) {
+                                                        try {
+                                                            await tripAPI.uploadPhotos({
+                                                                bookingId: booking.id || booking._id,
+                                                                type: 'post',
+                                                                photos: url.split(',').map(s => s.trim())
+                                                            });
+                                                            fetchBookings();
+                                                        } catch (err) {
+                                                            alert('Upload failed: ' + err.message);
+                                                        }
+                                                    }
+                                                }}
+                                            >
+                                                End Trip (Upload Photos)
+                                            </button>
+                                        )}
+
+                                        {(booking.preTripPhotos || booking.postTripPhotos) && (
+                                            <button
+                                                className="btn btn-outline btn-sm"
+                                                onClick={() => {
+                                                    const pre = booking.preTripPhotos ? JSON.parse(booking.preTripPhotos) : [];
+                                                    const post = booking.postTripPhotos ? JSON.parse(booking.postTripPhotos) : [];
+                                                    alert(`Pre-Trip: ${pre.join(', ')}\n\nPost-Trip: ${post.join(', ')}`);
+                                                }}
+                                            >
+                                                View Trip Photos
                                             </button>
                                         )}
 

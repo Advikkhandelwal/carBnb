@@ -248,6 +248,14 @@ const CarDetailsPage = () => {
                                 <span className="price-period">/ day</span>
                             </div>
 
+                            {/* Verification Warning */}
+                            {isAuthenticated && user && !user.isVerified && (
+                                <div className="verification-warning">
+                                    <p>Please verify your identity to book this car.</p>
+                                    <Link to="/profile" className="btn btn-outline btn-sm">Verify Now</Link>
+                                </div>
+                            )}
+
                             <div className="booking-dates">
                                 <div className="date-field">
                                     <label>Start Date</label>

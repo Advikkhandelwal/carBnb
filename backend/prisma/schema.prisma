@@ -8,13 +8,16 @@ datasource db {
 }
 
 model User {
-    id        Int      @id @default(autoincrement())
-    name      String
-    email     String   @unique
-    password  String
-    phone     String?
-    image     String?
-    createdAt DateTime @default(now())
+    id             Int      @id @default(autoincrement())
+    name           String
+    email          String   @unique
+    password       String
+    phone          String?
+    image          String?
+    isVerified     Boolean  @default(false)
+    idDocument     String?
+    drivingLicense String?
+    createdAt      DateTime @default(now())
 
     cars      Car[]
     bookings  Booking[]
@@ -58,13 +61,15 @@ model Car {
 }
 
 model Booking {
-    id        Int           @id @default(autoincrement())
-    userId    Int
-    carId     Int
-    startDate DateTime
-    endDate   DateTime
-    status    BookingStatus @default(PENDING)
-    createdAt DateTime      @default(now())
+    id             Int           @id @default(autoincrement())
+    userId         Int
+    carId          Int
+    startDate      DateTime
+    endDate        DateTime
+    status         BookingStatus @default(PENDING)
+    preTripPhotos  String?       @db.Text // Store as JSON string array
+    postTripPhotos String?       @db.Text // Store as JSON string array
+    createdAt      DateTime      @default(now())
 
     user   User    @relation(fields: [userId], references: [id])
     car    Car     @relation(fields: [carId], references: [id])

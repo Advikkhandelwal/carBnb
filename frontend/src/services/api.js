@@ -213,10 +213,44 @@ export const reviewAPI = {
     },
 };
 
+// Verification APIs
+export const verificationAPI = {
+    getStatus: async () => {
+        return fetchWithAuth('/verification/status');
+    },
+    uploadDocs: async (docs) => {
+        return fetchWithAuth('/verification/upload', {
+            method: 'POST',
+            body: JSON.stringify(docs),
+        });
+    },
+    verifyUser: async (userId, isVerified) => {
+        return fetchWithAuth('/verification/verify', {
+            method: 'POST',
+            body: JSON.stringify({ userId, isVerified }),
+        });
+    },
+};
+
+// Trip APIs
+export const tripAPI = {
+    uploadPhotos: async (photoData) => {
+        return fetchWithAuth('/trips/photos', {
+            method: 'POST',
+            body: JSON.stringify(photoData),
+        });
+    },
+    getPhotos: async (bookingId) => {
+        return fetchWithAuth(`/trips/photos/${bookingId}`);
+    },
+};
+
 export default {
     auth: authAPI,
     car: carAPI,
     booking: bookingAPI,
     user: userAPI,
     review: reviewAPI,
+    verification: verificationAPI,
+    trip: tripAPI,
 };

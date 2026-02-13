@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { userAPI, carAPI, bookingAPI } from '../services/api';
+import { userAPI, carAPI, bookingAPI, verificationAPI } from '../services/api';
 import './ProfilePage.css';
 
 const ProfilePage = () => {
@@ -71,6 +71,86 @@ const ProfilePage = () => {
                         <Link to="/profile/edit" className="btn btn-secondary">
                             Edit Profile
                         </Link>
+                    </div>
+
+                    {/* Verification Status */}
+                    <div className="profile-section verification-section">
+                        <div className="section-header">
+                            <h2>Identity Verification</h2>
+                            <span className={`verification-badge ${profile?.isVerified ? 'verified' : (profile?.idDocument ? 'pending' : 'unverified')}`}>
+                                {profile?.isVerified ? 'Verified' : (profile?.idDocument ? 'Pending Review' : 'Unverified')}
+                            </span>
+                        </div>
+
+                        {!profile?.isVerified ? (
+                            <div className="verification-content">
+                                <p className="verification-hint">
+                                    To book cars, you must verify your identity and driving license.
+                                </p>
+                                <div className="verification-form">
+                                    <div className="form-group">
+                                        <label>ID Document (Aadhar/Passport URL)</label>
+                                        <input
+                                            type="text"
+                                            placeholder="https://..."
+                                            defaultValue={profile?.idDocument || ''}
+                                            onBlur={async (e) => {
+                                                if (e.target.value) {
+                                                    try {
+                                                        await verificationAPI.uploadDocs({ idDocument: e.target.value });
+                                                        fetchProfileData();
+                                                    } catch (err) {
+                                                        alert('Upload failed: ' + err.message);
+                                                    }
+                                                }
+                                            }}
+                                        />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Driving License URL</label>
+                                        <input
+                                            type="text"
+                                            placeholder="https://..."
+                                            defaultValue={profile?.drivingLicense || ''}
+                                            onBlur={async (e) => {
+                                                if (e.target.value) {
+                                                    try {
+                                                        await verificationAPI.uploadDocs({ drivingLicense: e.target.value });
+                                                        fetchProfileData();
+                                                    } catch (err) {
+                                                        alert('Upload failed: ' + err.message);
+                                                    }
+                                                }
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+                                {profile?.idDocument && !profile?.isVerified && (
+                                    <button
+                                        className="btn btn-primary btn-sm"
+                                        style={{ marginTop: 'var(--spacing-md)' }}
+                                        onClick={async () => {
+                                            try {
+                                                await verificationAPI.verifyUser(profile.id, true);
+                                                fetchProfileData();
+                                            } catch (err) {
+                                                alert('Verification failed: ' + err.message);
+                                            }
+                                        }}
+                                    >
+                                        (Mock) Approve Verification
+                                    </button>
+                                )}
+                            </div>
+                        ) : (
+                            <div className="verification-success">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path d="M9 11l3 3L22 4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                    <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                </svg>
+                                <span>Your identity has been verified. You can now book cars!</span>
+                            </div>
+                        )}
                     </div>
 
                     {/* Contact Information */}

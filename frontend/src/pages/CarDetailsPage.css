@@ -253,6 +253,21 @@
     color: var(--color-gray-700);
 }
 
+.verification-warning {
+    background-color: #fff4e5;
+    border: 1px solid #ffe3b3;
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
+    margin: var(--spacing-lg) 0;
+    text-align: center;
+}
+
+.verification-warning p {
+    font-size: var(--font-size-sm);
+    color: #856404;
+    margin-bottom: var(--spacing-sm);
+}
+
 .booking-dates {
     display: flex;
     flex-direction: column;

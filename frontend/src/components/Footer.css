@@ -1,8 +1,8 @@
 .footer {
-    background-color: var(--color-gray-100);
-    border-top: 1px solid var(--color-gray-200);
-    padding: var(--spacing-3xl) 0 var(--spacing-xl);
-    margin-top: var(--spacing-3xl);
+    background-color: var(--color-gray-900);
+    color: var(--color-white);
+    padding: var(--spacing-huge) 0 var(--spacing-3xl);
+    margin-top: 0;
 }
 
 .footer-content {
@@ -18,26 +18,32 @@
 }
 
 .footer-title {
-    font-size: var(--font-size-xl);
-    font-weight: var(--font-weight-bold);
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-extrabold);
+    font-family: var(--font-family-header);
+    color: var(--color-white);
+    margin-bottom: var(--spacing-md);
+    letter-spacing: -0.01em;
+}
+
+.footer-title span {
     color: var(--color-primary);
-    margin-bottom: var(--spacing-sm);
 }
 
 .footer-text {
-    color: var(--color-gray-700);
-    font-size: var(--font-size-sm);
-    line-height: 1.6;
+    color: var(--color-gray-500);
+    font-size: var(--font-size-base);
+    line-height: 1.7;
     margin: 0;
 }
 
 .footer-heading {
     font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-semibold);
-    color: var(--color-black);
-    margin-bottom: var(--spacing-md);
+    font-weight: var(--font-weight-bold);
+    color: var(--color-white);
+    margin-bottom: var(--spacing-lg);
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 1px;
 }
 
 .footer-links {
@@ -51,22 +57,24 @@
 }
 
 .footer-links a {
-    color: var(--color-gray-700);
-    font-size: var(--font-size-sm);
+    color: var(--color-gray-500);
+    font-size: var(--font-size-base);
     text-decoration: none;
-    transition: color var(--transition-fast);
+    transition: all var(--transition-fast);
 }
 
 .footer-links a:hover {
-    color: var(--color-primary);
+    color: var(--color-white);
+    transform: translateX(4px);
 }
 
 .footer-bottom {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-top: var(--spacing-lg);
-    border-top: 1px solid var(--color-gray-300);
+    padding-top: var(--spacing-2xl);
+    margin-top: var(--spacing-2xl);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .footer-copyright {

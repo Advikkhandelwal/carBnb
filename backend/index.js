@@ -30,6 +30,8 @@ app.use("/bookings", require("./src/routes/booking.routes"));
 app.use("/reviews", require("./src/routes/review.routes"));
 app.use("/users", require("./src/routes/user.routes"));
 app.use("/favorites", require("./src/routes/favorites.routes"));
+app.use("/verification", require("./src/routes/verification.routes"));
+app.use("/trips", require("./src/routes/trip.routes"));
 
 /* -------- ERROR HANDLER -------- */
 app.use((err, req, res, next) => {
