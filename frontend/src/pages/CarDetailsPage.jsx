@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { carAPI, bookingAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import ReviewList from '../components/ReviewList';
@@ -10,7 +10,7 @@ import './CarDetailsPage.css';
 const CarDetailsPage = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, user } = useAuth();
     const [car, setCar] = useState(null);
     const [loading, setLoading] = useState(true);
     const [selectedImage, setSelectedImage] = useState(0);
