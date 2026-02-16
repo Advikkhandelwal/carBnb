@@ -14,9 +14,9 @@ model User {
     password       String
     phone          String?
     image          String?
-    isVerified     Boolean  @default(false)
-    idDocument     String?
-    drivingLicense String?
+    isVerified           Boolean  @default(false)
+    aadhaarNumber        String?
+    drivingLicenseNumber String?
     createdAt      DateTime @default(now())
 
     cars      Car[]

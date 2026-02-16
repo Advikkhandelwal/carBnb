@@ -77,8 +77,8 @@ const ProfilePage = () => {
                     <div className="profile-section verification-section">
                         <div className="section-header">
                             <h2>Identity Verification</h2>
-                            <span className={`verification-badge ${profile?.isVerified ? 'verified' : (profile?.idDocument ? 'pending' : 'unverified')}`}>
-                                {profile?.isVerified ? 'Verified' : (profile?.idDocument ? 'Pending Review' : 'Unverified')}
+                            <span className={`verification-badge ${profile?.isVerified ? 'verified' : (profile?.aadhaarNumber ? 'pending' : 'unverified')}`}>
+                                {profile?.isVerified ? 'Verified' : (profile?.aadhaarNumber ? 'Pending Review' : 'Unverified')}
                             </span>
                         </div>
 
@@ -89,15 +89,15 @@ const ProfilePage = () => {
                                 </p>
                                 <div className="verification-form">
                                     <div className="form-group">
-                                        <label>ID Document (Aadhar/Passport URL)</label>
+                                        <label>Aadhaar Card Number</label>
                                         <input
                                             type="text"
-                                            placeholder="https://..."
-                                            defaultValue={profile?.idDocument || ''}
+                                            placeholder="Enter 12-digit Aadhaar number"
+                                            defaultValue={profile?.aadhaarNumber || ''}
                                             onBlur={async (e) => {
                                                 if (e.target.value) {
                                                     try {
-                                                        await verificationAPI.uploadDocs({ idDocument: e.target.value });
+                                                        await verificationAPI.uploadDocs({ aadhaarNumber: e.target.value });
                                                         fetchProfileData();
                                                     } catch (err) {
                                                         alert('Upload failed: ' + err.message);
@@ -107,15 +107,15 @@ const ProfilePage = () => {
                                         />
                                     </div>
                                     <div className="form-group">
-                                        <label>Driving License URL</label>
+                                        <label>Driving License Number</label>
                                         <input
                                             type="text"
-                                            placeholder="https://..."
-                                            defaultValue={profile?.drivingLicense || ''}
+                                            placeholder="Enter DL number"
+                                            defaultValue={profile?.drivingLicenseNumber || ''}
                                             onBlur={async (e) => {
                                                 if (e.target.value) {
                                                     try {
-                                                        await verificationAPI.uploadDocs({ drivingLicense: e.target.value });
+                                                        await verificationAPI.uploadDocs({ drivingLicenseNumber: e.target.value });
                                                         fetchProfileData();
                                                     } catch (err) {
                                                         alert('Upload failed: ' + err.message);
@@ -125,7 +125,7 @@ const ProfilePage = () => {
                                         />
                                     </div>
                                 </div>
-                                {profile?.idDocument && !profile?.isVerified && (
+                                {profile?.aadhaarNumber && !profile?.isVerified && (
                                     <button
                                         className="btn btn-primary btn-sm"
                                         style={{ marginTop: 'var(--spacing-md)' }}

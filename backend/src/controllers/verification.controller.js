@@ -3,13 +3,13 @@ const verificationService = require("../services/verification.service");
 exports.uploadDocs = async (req, res) => {
     try {
         const userId = req.user.id;
-        const { idDocument, drivingLicense } = req.body;
+        const { aadhaarNumber, drivingLicenseNumber } = req.body;
 
-        if (!idDocument && !drivingLicense) {
+        if (!aadhaarNumber && !drivingLicenseNumber) {
             return res.status(400).json({ error: "No documents provided" });
         }
 
-        const user = await verificationService.uploadVerificationDocs(userId, { idDocument, drivingLicense });
+        const user = await verificationService.uploadVerificationDocs(userId, { aadhaarNumber, drivingLicenseNumber });
         res.json(user);
     } catch (error) {
         console.error("Error uploading verification docs:", error);

@@ -2,13 +2,13 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 exports.uploadVerificationDocs = async (userId, data) => {
-    const { idDocument, drivingLicense } = data;
+    const { aadhaarNumber, drivingLicenseNumber } = data;
 
     return prisma.user.update({
         where: { id: Number(userId) },
         data: {
-            idDocument: idDocument || undefined,
-            drivingLicense: drivingLicense || undefined,
+            aadhaarNumber: aadhaarNumber || undefined,
+            drivingLicenseNumber: drivingLicenseNumber || undefined,
             // Reset verification status if new docs are uploaded
             isVerified: false,
         },
@@ -16,8 +16,8 @@ exports.uploadVerificationDocs = async (userId, data) => {
             id: true,
             name: true,
             isVerified: true,
-            idDocument: true,
-            drivingLicense: true,
+            aadhaarNumber: true,
+            drivingLicenseNumber: true,
         }
     });
 };
@@ -40,8 +40,8 @@ exports.getVerificationStatus = async (userId) => {
         select: {
             id: true,
             isVerified: true,
-            idDocument: true,
-            drivingLicense: true,
+            aadhaarNumber: true,
+            drivingLicenseNumber: true,
         }
     });
 };
