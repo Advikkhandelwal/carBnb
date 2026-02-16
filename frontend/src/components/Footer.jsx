@@ -7,7 +7,10 @@ const Footer = () => {
             <div className="container">
                 <div className="footer-content">
                     <div className="footer-section">
-                        <h4 className="footer-title">CarBnB</h4>
+                        <div className="footer-logo">
+                            <img src="/logo.png" alt="CarBnB Logo" className="footer-logo-img" />
+                            <h4 className="footer-title">CarBnB</h4>
+                        </div>
                         <p className="footer-text">
                             Rent cars from people near you. The peer-to-peer car sharing marketplace.
                         </p>

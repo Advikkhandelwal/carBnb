@@ -21,12 +21,7 @@ const Navbar = () => {
                 <div className="navbar-content">
                     {/* Logo */}
                     <Link to="/" className="navbar-logo">
-                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-                            <path
-                                d="M16 2L4 8v12c0 7.18 5.82 13 13 13s13-5.82 13-13V8l-12-6z"
-                                fill="var(--color-primary)"
-                            />
-                        </svg>
+                        <img src="/logo.png" alt="CarBnB Logo" className="navbar-logo-img" />
                         <span className="navbar-logo-text">CarBnB</span>
                     </Link>
 
