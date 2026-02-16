@@ -25,14 +25,37 @@ exports.addReview = async (userId, data) => {
     throw new Error("This booking has already been reviewed");
   }
 
-  return prisma.review.create({
-    data: {
-      userId,
-      carId: Number(carId),
-      bookingId: Number(bookingId),
-      rating,
-      comment,
-    },
+  return prisma.$transaction(async (tx) => {
+    // Create the review
+    const review = await tx.review.create({
+      data: {
+        userId,
+        carId: Number(carId),
+        bookingId: Number(bookingId),
+        rating,
+        comment,
+      },
+    });
+
+    // Update the car's pre-calculated fields
+    const car = await tx.car.findUnique({
+      where: { id: Number(carId) },
+      select: { averageRating: true, reviewCount: true },
+    });
+
+    const newReviewCount = car.reviewCount + 1;
+    const newAverageRating =
+      ((car.averageRating * car.reviewCount) + rating) / newReviewCount;
+
+    await tx.car.update({
+      where: { id: Number(carId) },
+      data: {
+        reviewCount: newReviewCount,
+        averageRating: Math.round(newAverageRating * 10) / 10,
+      },
+    });
+
+    return review;
   });
 };
 

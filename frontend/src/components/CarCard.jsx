@@ -1,25 +1,18 @@
+import { memo, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import './CarCard.css';
 
-// Inline style for simplicity, or we can update the CSS file.
-// Ideally should update CSS file, but for now let's add class logic.
-// Please update CarCard.css if possible, or I will use style object.
-
-// Actually I will assume CarCard.css exists and I can append to it.
-// Waiting for next tool call to update CSS.
-
-const CarCard = ({ car }) => {
+const CarCard = memo(({ car }) => {
     const {
-        id, // Assuming ID might be 'id' or '_id', handled below
+        id,
         _id,
         brand,
         model,
         pricePerDay,
         location,
         image,
-        rating = 4.5,
+        averageRating = 0,
         reviewCount = 0,
         fuelType,
         transmission,
@@ -49,10 +42,9 @@ const CarCard = ({ car }) => {
     }, [carId, isAuthenticated, token]);
 
     const toggleFavorite = async (e) => {
-        e.preventDefault(); // Prevent Link navigation
+        e.preventDefault();
         if (!isAuthenticated) return;
 
-        // Optimistic update
         const newState = !isFavorite;
         setIsFavorite(newState);
 
@@ -67,7 +59,6 @@ const CarCard = ({ car }) => {
             });
 
             if (!response.ok) {
-                // Revert on failure
                 setIsFavorite(!newState);
             }
         } catch (error) {
@@ -83,6 +74,7 @@ const CarCard = ({ car }) => {
                     src={image || 'https://via.placeholder.com/400x300?text=Car+Image'}
                     alt={`${brand} ${model}`}
                     className="car-card-image"
+                    loading="lazy"
                 />
                 <div className="car-card-badge">{fuelType}</div>
 
@@ -108,7 +100,7 @@ const CarCard = ({ car }) => {
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                         </svg>
-                        <span>{rating.toFixed(1)}</span>
+                        <span>{averageRating?.toFixed(1) || '0.0'}</span>
                         {reviewCount > 0 && (
                             <span className="car-card-reviews">({reviewCount})</span>
                         )}
@@ -143,6 +135,6 @@ const CarCard = ({ car }) => {
             </div>
         </Link>
     );
-};
+});
 
 export default CarCard;

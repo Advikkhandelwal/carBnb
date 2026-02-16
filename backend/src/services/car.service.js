@@ -2,7 +2,7 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 exports.getAllCars = async () => {
-  const cars = await prisma.car.findMany({
+  return prisma.car.findMany({
     include: {
       owner: {
         select: {
@@ -10,32 +10,10 @@ exports.getAllCars = async () => {
           name: true,
           email: true,
           image: true,
-          // phone intentionally excluded from general car listing
-        },
-      },
-      reviews: {
-        select: {
-          rating: true,
         },
       },
     },
-    orderBy: { createdAt: 'desc' }, // Show newest cars first
-  });
-
-  // Calculate average rating for each car
-  return cars.map((car) => {
-    const ratings = car.reviews.map((r) => r.rating);
-    const averageRating =
-      ratings.length > 0
-        ? ratings.reduce((sum, r) => sum + r, 0) / ratings.length
-        : 0;
-
-    const { reviews, ...carWithoutReviews } = car;
-    return {
-      ...carWithoutReviews,
-      averageRating: Math.round(averageRating * 10) / 10, // Round to 1 decimal
-      reviewCount: reviews.length,
-    };
+    orderBy: { createdAt: 'desc' },
   });
 };
 
@@ -49,7 +27,6 @@ exports.getCar = async (id) => {
           name: true,
           email: true,
           image: true,
-          // phone intentionally excluded here; it is shared via bookings logic only
         },
       },
       reviews: {
@@ -59,7 +36,6 @@ exports.getCar = async (id) => {
               id: true,
               name: true,
               image: true,
-              // phone intentionally excluded from public reviews
             },
           },
         },
@@ -68,20 +44,7 @@ exports.getCar = async (id) => {
     },
   });
 
-  if (!car) return null;
-
-  // Calculate average rating
-  const ratings = car.reviews.map((r) => r.rating);
-  const averageRating =
-    ratings.length > 0
-      ? ratings.reduce((sum, r) => sum + r, 0) / ratings.length
-      : 0;
-
-  return {
-    ...car,
-    averageRating: Math.round(averageRating * 10) / 10,
-    reviewCount: car.reviews.length,
-  };
+  return car;
 };
 
 exports.searchCars = async (filters) => {
@@ -162,37 +125,11 @@ exports.searchCars = async (filters) => {
           image: true,
         },
       },
-      reviews: {
-        select: {
-          rating: true,
-        },
-      },
     },
-    orderBy: filters.sortBy !== 'rating' ? orderBy : undefined,
+    orderBy: filters.sortBy !== 'rating' ? orderBy : { averageRating: 'desc' },
   });
 
-  // Calculate average rating for each car
-  let mappedCars = cars.map((car) => {
-    const ratings = car.reviews.map((r) => r.rating);
-    const averageRating =
-      ratings.length > 0
-        ? ratings.reduce((sum, r) => sum + r, 0) / ratings.length
-        : 0;
-
-    const { reviews, ...carWithoutReviews } = car;
-    return {
-      ...carWithoutReviews,
-      averageRating: Math.round(averageRating * 10) / 10,
-      reviewCount: reviews.length,
-    };
-  });
-
-  // Handle rating sort purely in memory
-  if (filters.sortBy === 'rating') {
-    mappedCars.sort((a, b) => b.averageRating - a.averageRating);
-  }
-
-  return mappedCars;
+  return cars;
 };
 
 exports.createCar = async (carData) => {
@@ -207,10 +144,9 @@ exports.getCarsNearby = async ({ lat, lng, radiusInKm = 10 }) => {
   const radius = parseFloat(radiusInKm);
 
   // Haversine formula to find cars within radius
-  // 6371 is Earth's radius in km
-  const cars = await prisma.$queryRaw`
+  const nearbyCarsRaw = await prisma.$queryRaw`
     SELECT 
-      c.*,
+      c.id,
       (
         6371 * acos(
           cos(radians(${latitude})) * cos(radians(c.latitude)) *
@@ -218,26 +154,40 @@ exports.getCarsNearby = async ({ lat, lng, radiusInKm = 10 }) => {
           sin(radians(${latitude})) * sin(radians(c.latitude))
         )
       ) AS distance
-    FROM Car c
+    FROM "Car" c
     WHERE c.latitude IS NOT NULL AND c.longitude IS NOT NULL
-    HAVING distance < ${radius}
+    AND (
+        6371 * acos(
+          cos(radians(${latitude})) * cos(radians(c.latitude)) *
+          cos(radians(c.longitude) - radians(${longitude})) +
+          sin(radians(${latitude})) * sin(radians(c.latitude))
+        )
+      ) < ${radius}
     ORDER BY distance ASC;
   `;
 
-  // Fetch owners separately as $queryRaw returns raw data not relation objects directly in the same structure usually
-  // Or we can just hydrate the result. For simplicity, let's just return the cars with distance.
-  // Actually, to match frontend expectations, we might want to attach owner info.
-  // Let's do a quick enrichment.
+  if (nearbyCarsRaw.length === 0) return [];
 
-  const enrichedCars = await Promise.all(cars.map(async (car) => {
-    // Re-fetch standard structure including owner and reviews if needed, or just partial
-    // For performance, let's just return what we have plus owner minimal info if possible.
-    // Given the complexity of mixing raw query with Prisma relations, fetching by IDs is safest/cleanest.
-    const fullCar = await exports.getCar(car.id);
-    return { ...fullCar, distance: car.distance };
-  }));
+  const carIds = nearbyCarsRaw.map(c => c.id);
+  const cars = await prisma.car.findMany({
+    where: { id: { in: carIds } },
+    include: {
+      owner: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          image: true,
+        },
+      },
+    },
+  });
 
-  return enrichedCars;
+  // Re-attach distance and sort
+  return nearbyCarsRaw.map(raw => {
+    const car = cars.find(c => c.id === raw.id);
+    return { ...car, distance: raw.distance };
+  });
 };
 
 exports.updateCar = async (id, carData) => {

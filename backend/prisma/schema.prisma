@@ -35,6 +35,8 @@ model Favorite {
     car  Car  @relation(fields: [carId], references: [id])
 
     @@unique([userId, carId])
+    @@index([userId])
+    @@index([carId])
 }
 
 model Car {
@@ -52,12 +54,18 @@ model Car {
     image        String?
     latitude     Float?
     longitude    Float?
+    averageRating Float    @default(0)
+    reviewCount   Int      @default(0)
     createdAt    DateTime @default(now())
 
     owner       User       @relation(fields: [ownerId], references: [id])
     bookings    Booking[]
     reviews     Review[]
     favoritedBy Favorite[]
+
+    @@index([location])
+    @@index([brand, model])
+    @@index([ownerId])
 }
 
 model Booking {
@@ -74,6 +82,10 @@ model Booking {
     user   User    @relation(fields: [userId], references: [id])
     car    Car     @relation(fields: [carId], references: [id])
     review Review?
+
+    @@index([userId])
+    @@index([carId])
+    @@index([status])
 }
 
 model Review {
@@ -88,6 +100,9 @@ model Review {
     user    User    @relation(fields: [userId], references: [id])
     car     Car     @relation(fields: [carId], references: [id])
     booking Booking @relation(fields: [bookingId], references: [id])
+
+    @@index([carId])
+    @@index([userId])
 }
 
 enum BookingStatus {

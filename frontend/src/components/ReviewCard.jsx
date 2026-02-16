@@ -1,6 +1,7 @@
+import { memo } from 'react';
 import './ReviewCard.css';
 
-const ReviewCard = ({ review }) => {
+const ReviewCard = memo(({ review }) => {
     const { user, rating, comment, createdAt } = review;
 
     return (
@@ -42,6 +43,6 @@ const ReviewCard = ({ review }) => {
             )}
         </div>
     );
-};
+});
 
 export default ReviewCard;
