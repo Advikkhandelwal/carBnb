@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { userAPI } from '../services/api';
+import { getFullImageUrl } from '../utils/urlUtils';
 import './ProfilePage.css'; // Reuse profile styles
 
 const EditProfilePage = () => {
@@ -80,7 +81,7 @@ const EditProfilePage = () => {
                         <div className="profile-image-upload">
                             <div className="profile-avatar-large">
                                 {previewUrl ? (
-                                    <img src={previewUrl} alt="Profile Preview" className="avatar-image" />
+                                    <img src={getFullImageUrl(previewUrl)} alt="Profile Preview" className="avatar-image" />
                                 ) : (
                                     formData.name?.charAt(0).toUpperCase() || 'U'
                                 )}

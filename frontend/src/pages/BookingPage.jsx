@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { bookingAPI, userAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import MapComponent from '../components/MapComponent';
+import { getFullImageUrl } from '../utils/urlUtils';
 import './BookingPage.css';
 
 const BookingPage = () => {
@@ -185,7 +186,7 @@ const BookingPage = () => {
                         {/* Left: Car Details */}
                         <div className="booking-car-details">
                             <div className="car-image">
-                                <img src={car.image} alt={`${car.brand} ${car.model}`} />
+                                <img src={getFullImageUrl(car.image)} alt={`${car.brand} ${car.model}`} />
                             </div>
                             <div className="car-info">
                                 <h2>{car.brand} {car.model}</h2>

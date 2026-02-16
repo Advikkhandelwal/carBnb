@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { bookingAPI, tripAPI } from '../services/api';
 import MapComponent from '../components/MapComponent';
+import { getFullImageUrl } from '../utils/urlUtils';
 import './BookingHistoryPage.css';
 
 const BookingHistoryPage = () => {
@@ -103,7 +104,7 @@ const BookingHistoryPage = () => {
                             <div key={booking.id || booking._id} className="booking-card">
                                 <div className="booking-car-image">
                                     <img
-                                        src={booking.car?.image || 'https://via.placeholder.com/400x300?text=Car+Image'}
+                                        src={getFullImageUrl(booking.car?.image)}
                                         alt={`${booking.car?.brand} ${booking.car?.model}`}
                                     />
                                 </div>

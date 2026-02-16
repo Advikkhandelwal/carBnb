@@ -28,7 +28,8 @@ const CarCard = memo(({ car }) => {
         const checkFavorite = async () => {
             if (!isAuthenticated || !token) return;
             try {
-                const response = await fetch(`http://localhost:3001/favorites/check/${carId}`, {
+                const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+                const response = await fetch(`${API_BASE_URL}/favorites/check/${carId}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 if (response.ok) {
@@ -50,7 +51,8 @@ const CarCard = memo(({ car }) => {
         setIsFavorite(newState);
 
         try {
-            const response = await fetch('http://localhost:3001/favorites', {
+            const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+            const response = await fetch(`${API_BASE_URL}/favorites`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

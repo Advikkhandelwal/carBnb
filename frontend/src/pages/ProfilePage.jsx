@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { userAPI, carAPI, bookingAPI, verificationAPI } from '../services/api';
+import { getFullImageUrl } from '../utils/urlUtils';
 import './ProfilePage.css';
 
 const ProfilePage = () => {
@@ -189,7 +190,7 @@ const ProfilePage = () => {
                             <div className="cars-grid-small">
                                 {myCars.slice(0, 3).map(car => (
                                     <Link key={car._id} to={`/cars/${car._id}`} className="car-card-small">
-                                        <img src={car.image} alt={`${car.brand} ${car.model}`} />
+                                        <img src={getFullImageUrl(car.image)} alt={`${car.brand} ${car.model}`} />
                                         <div className="car-card-info">
                                             <h4>{car.brand} {car.model}</h4>
                                             <p>₹{car.pricePerDay}/day</p>
@@ -215,7 +216,7 @@ const ProfilePage = () => {
                                 {bookings.slice(0, 3).map(booking => (
                                     <div key={booking._id} className="booking-item-small">
                                         <div className="booking-car">
-                                            <img src={booking.car?.image} alt={`${booking.car?.brand} ${booking.car?.model}`} />
+                                            <img src={getFullImageUrl(booking.car?.image)} alt={`${booking.car?.brand} ${booking.car?.model}`} />
                                             <div>
                                                 <h4>{booking.car?.brand} {booking.car?.model}</h4>
                                                 <p>{new Date(booking.startDate).toLocaleDateString()} - {new Date(booking.endDate).toLocaleDateString()}</p>

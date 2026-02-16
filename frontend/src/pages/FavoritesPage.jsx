@@ -12,7 +12,8 @@ const FavoritesPage = () => {
     useEffect(() => {
         const fetchFavorites = async () => {
             try {
-                const response = await fetch('http://localhost:3001/favorites', {
+                const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+                const response = await fetch(`${API_BASE_URL}/favorites`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { carAPI, bookingAPI } from '../services/api';
+import { getFullImageUrl } from '../utils/urlUtils';
 import './OwnerDashboard.css';
 
 const OwnerDashboard = () => {
@@ -164,7 +165,7 @@ const OwnerDashboard = () => {
                                 myCars.map(car => (
                                     <div key={car.id || car._id} className="car-item">
                                         <img
-                                            src={car.image || 'https://via.placeholder.com/400x300?text=Car+Image'}
+                                            src={getFullImageUrl(car.image)}
                                             alt={`${car.brand} ${car.model}`}
                                             className="car-item-image"
                                         />
