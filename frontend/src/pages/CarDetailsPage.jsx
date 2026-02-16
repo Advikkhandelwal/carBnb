@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import ReviewList from '../components/ReviewList';
 import MapComponent from '../components/MapComponent';
 import AvailabilityCalendar from '../components/AvailabilityCalendar';
+import { getFullImageUrl } from '../utils/urlUtils';
 import './CarDetailsPage.css';
 
 const CarDetailsPage = () => {
@@ -129,7 +130,7 @@ const CarDetailsPage = () => {
                 {/* Image Gallery */}
                 <div className="image-gallery">
                     <div className="main-image">
-                        <img src={images[selectedImage]} alt={`${car.brand} ${car.model}`} />
+                        <img src={getFullImageUrl(images[selectedImage])} alt={`${car.brand} ${car.model}`} />
                     </div>
                     {images.length > 1 && (
                         <div className="thumbnail-grid">
@@ -139,7 +140,7 @@ const CarDetailsPage = () => {
                                     className={`thumbnail ${selectedImage === index ? 'active' : ''}`}
                                     onClick={() => setSelectedImage(index)}
                                 >
-                                    <img src={img} alt={`View ${index + 1}`} />
+                                    <img src={getFullImageUrl(img)} alt={`View ${index + 1}`} />
                                 </div>
                             ))}
                         </div>

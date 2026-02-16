@@ -22,9 +22,7 @@ exports.addCar = async (req, res) => {
     let image = req.body.image;
 
     if (req.file) {
-      // Assuming server is running on localhost:3001 or using env var
-      const baseUrl = process.env.API_URL || "http://localhost:3001";
-      image = `${baseUrl}/uploads/${req.file.filename}`;
+      image = `/uploads/${req.file.filename}`;
     }
 
     const car = await ownerService.addCar(ownerId, {
@@ -77,8 +75,7 @@ exports.updateCar = async (req, res) => {
     let updateData = { ...req.body };
 
     if (req.file) {
-      const baseUrl = process.env.API_URL || "http://localhost:3001";
-      updateData.image = `${baseUrl}/uploads/${req.file.filename}`;
+      updateData.image = `/uploads/${req.file.filename}`;
     }
 
     const car = await ownerService.updateCar(req.params.id, ownerId, updateData);

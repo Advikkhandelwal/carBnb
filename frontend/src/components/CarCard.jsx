@@ -2,6 +2,7 @@ import { memo, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import './CarCard.css';
+import { getFullImageUrl } from '../utils/urlUtils';
 
 const CarCard = memo(({ car }) => {
     const {
@@ -71,7 +72,7 @@ const CarCard = memo(({ car }) => {
         <Link to={`/cars/${carId}`} className="car-card">
             <div className="car-card-image-wrapper">
                 <img
-                    src={image || 'https://via.placeholder.com/400x300?text=Car+Image'}
+                    src={getFullImageUrl(image)}
                     alt={`${brand} ${model}`}
                     className="car-card-image"
                     loading="lazy"
