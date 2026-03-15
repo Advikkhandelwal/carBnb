@@ -44,7 +44,7 @@ exports.searchCars = async (req, res) => {
 exports.createCar = async (req, res) => {
   try {
     const { brand, model, engine, fuelType, color, pricePerDay, location, transmission, seats, image } = req.body;
-    const ownerId = req.user.id; // From authenticateToken middleware
+    const ownerId = req.user.id; 
 
     if (!brand || !model || !fuelType || !pricePerDay || !location) {
       return res.status(400).json({ error: "Missing required fields" });
@@ -58,13 +58,12 @@ exports.createCar = async (req, res) => {
       color,
       pricePerDay: parseFloat(pricePerDay),
       location,
-      transmission: transmission || 'Manual', // Default to Manual if not provided
-      seats: seats ? parseInt(seats) : 5,    // Default to 5 seats
+      transmission: transmission || 'Manual',
+      seats: seats ? parseInt(seats) : 5,   
       image,
       ownerId,
       latitude: req.body.latitude ? parseFloat(req.body.latitude) : null,
       longitude: req.body.longitude ? parseFloat(req.body.longitude) : null,
-      // Note: Cars are immediately visible - no 'available' field needed
     };
 
     const newCar = await carService.createCar(carData);
@@ -80,7 +79,7 @@ exports.updateCar = async (req, res) => {
     const carId = req.params.id;
     const ownerId = req.user.id;
 
-    // Authorization check
+
     const existingCar = await carService.getCar(carId);
     if (!existingCar) return res.status(404).json({ error: "Car not found" });
     if (existingCar.ownerId !== ownerId) return res.status(403).json({ error: "Unauthorized" });
@@ -98,7 +97,7 @@ exports.deleteCar = async (req, res) => {
     const carId = req.params.id;
     const ownerId = req.user.id;
 
-    // Authorization check
+
     const existingCar = await carService.getCar(carId);
     if (!existingCar) return res.status(404).json({ error: "Car not found" });
     if (existingCar.ownerId !== ownerId) return res.status(403).json({ error: "Unauthorized" });

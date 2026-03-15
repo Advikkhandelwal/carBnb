@@ -10,6 +10,7 @@ exports.getAllCars = async () => {
           name: true,
           email: true,
           image: true,
+          isVerified: true,
         },
       },
     },
@@ -27,6 +28,7 @@ exports.getCar = async (id) => {
           name: true,
           email: true,
           image: true,
+          isVerified: true,
         },
       },
       reviews: {
@@ -198,7 +200,28 @@ exports.updateCar = async (id, carData) => {
 };
 
 exports.deleteCar = async (id) => {
-  return prisma.car.delete({
-    where: { id: Number(id) },
+  const carId = Number(id);
+
+  // Use a transaction to delete all associated records
+  return prisma.$transaction(async (tx) => {
+    // 1. Delete associated Favorites
+    await tx.favorite.deleteMany({
+      where: { carId }
+    });
+
+    // 2. Delete associated Reviews
+    await tx.review.deleteMany({
+      where: { carId }
+    });
+
+    // 3. Delete associated Bookings
+    await tx.booking.deleteMany({
+      where: { carId }
+    });
+
+    // 4. Finally delete the Car
+    return tx.car.delete({
+      where: { id: carId }
+    });
   });
 };

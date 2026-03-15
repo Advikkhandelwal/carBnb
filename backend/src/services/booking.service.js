@@ -5,10 +5,29 @@ exports.createBooking = async (userId, data) => {
   const startDate = new Date(data.startDate);
   const endDate = new Date(data.endDate);
   const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  // Check if user is verified
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { isVerified: true }
+  });
 
+  if (!user?.isVerified) {
+    throw new Error("Please verify your identity in your profile before booking a car");
+  }
 
+  // Check if user is the owner
+  const car = await prisma.car.findUnique({
+    where: { id: Number(data.carId) },
+    select: { ownerId: true }
+  });
 
+  if (!car) {
+    throw new Error("Car not found");
+  }
+
+  if (car.ownerId === userId) {
+    throw new Error("You cannot book your own car");
+  }
   // Validate dates
   if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
     throw new Error("Invalid date format");

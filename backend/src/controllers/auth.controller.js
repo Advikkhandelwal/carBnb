@@ -98,8 +98,7 @@ exports.updateMe = async (req, res) => {
     let image = req.body.image;
 
     if (req.file) {
-      const baseUrl = process.env.API_URL || "http://localhost:3001";
-      image = `${baseUrl}/uploads/${req.file.filename}`;
+      image = req.file.supabaseUrl;
     }
 
     const user = await authService.updateUserProfile(req.user.id, {

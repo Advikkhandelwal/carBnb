@@ -203,7 +203,16 @@ const CarDetailsPage = () => {
                                     {car.owner?.name?.charAt(0).toUpperCase() || 'O'}
                                 </div>
                                 <div className="owner-info">
-                                    <div className="owner-name">{car.owner?.name || 'Car Owner'}</div>
+                                    <div className="owner-name">
+                                        {car.owner?.name || 'Car Owner'}
+                                        {car.owner?.isVerified && (
+                                            <span className="verified-icon" title="Verified Owner">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                                                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" />
+                                                </svg>
+                                            </span>
+                                        )}
+                                    </div>
                                     <div className="owner-rating">
                                         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                                             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
@@ -294,8 +303,15 @@ const CarDetailsPage = () => {
                                 </div>
                             )}
 
-                            <button onClick={handleBookNow} className="btn btn-primary" style={{ width: '100%' }}>
-                                {isAuthenticated ? 'Book Now' : 'Login to Book'}
+                            <button
+                                onClick={handleBookNow}
+                                className={`btn ${(isAuthenticated && car.ownerId === user?.id) ? 'btn-secondary' : 'btn-primary'}`}
+                                style={{ width: '100%' }}
+                                disabled={isAuthenticated && car.ownerId === user?.id}
+                            >
+                                {isAuthenticated ? (
+                                    car.ownerId === user?.id ? 'You Own This Car' : 'Book Now'
+                                ) : 'Login to Book'}
                             </button>
 
                             <p className="booking-note">You won't be charged yet</p>

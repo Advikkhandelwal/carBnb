@@ -8,22 +8,25 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 export const getFullImageUrl = (url) => {
     if (!url) return 'https://via.placeholder.com/400x300?text=Car+Image';
 
+    // Ensure url is a string and trim it
+    const cleanUrl = String(url).trim();
+
     // Handle legacy localhost URLs in the database
-    if (url.includes('localhost:3001')) {
-        const path = url.split('localhost:3001')[1];
+    if (cleanUrl.includes('localhost:3001')) {
+        const path = cleanUrl.split('localhost:3001')[1];
         const cleanBaseUrl = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
-        return `${cleanBaseUrl}${path}`;
+        const cleanPath = path.startsWith('/') ? path : `/${path}`;
+        return `${cleanBaseUrl}${cleanPath}`;
     }
 
     // If it's already an absolute URL (starts with http or https), return as is
-    if (url.startsWith('http://') || url.startsWith('https://')) {
-        return url;
+    if (cleanUrl.startsWith('http://') || cleanUrl.startsWith('https://')) {
+        return cleanUrl;
     }
 
     // If it's a relative path, prepend the API base URL
-    // Ensure we don't have double slashes
     const cleanBaseUrl = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
-    const cleanPath = url.startsWith('/') ? url : `/${url}`;
+    const cleanPath = cleanUrl.startsWith('/') ? cleanUrl : `/${cleanUrl}`;
 
     return `${cleanBaseUrl}${cleanPath}`;
 };

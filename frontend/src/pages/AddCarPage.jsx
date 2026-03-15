@@ -79,7 +79,7 @@ const AddCarPage = () => {
             navigate('/dashboard');
         } catch (error) {
             console.error('Failed to add car:', error);
-            alert('Failed to add car. Please try again.');
+            alert(`Failed to add car: ${error.message}`);
         } finally {
             setLoading(false);
         }

@@ -49,7 +49,7 @@ model Car {
     color        String
     pricePerDay  Float
     location     String
-    transmission String   @default("Manual") // "Manual" or "Automatic"
+    transmission String   @default("Manual") 
     seats        Int      @default(5)
     image        String?
     latitude     Float?
@@ -75,8 +75,8 @@ model Booking {
     startDate      DateTime
     endDate        DateTime
     status         BookingStatus @default(PENDING)
-    preTripPhotos  String?       @db.Text // Store as JSON string array
-    postTripPhotos String?       @db.Text // Store as JSON string array
+    preTripPhotos  String?       @db.Text 
+    postTripPhotos String?       @db.Text 
     createdAt      DateTime      @default(now())
 
     user   User    @relation(fields: [userId], references: [id])

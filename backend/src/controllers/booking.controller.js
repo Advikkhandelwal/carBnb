@@ -22,8 +22,6 @@ exports.getBookings = async (req, res) => {
     const userId = req.user.id;
     const bookings = await bookingService.getBookings(userId);
 
-    // Phone sharing logic:
-    // - Phone numbers are ONLY shared when booking.status === 'CONFIRMED'
     const sanitized = bookings.map((b) => {
       const booking = { ...b };
 
@@ -34,8 +32,6 @@ exports.getBookings = async (req, res) => {
           delete booking.car.owner.phone;
         }
       }
-
-      // For now, we don't expose renter phone here since this endpoint is for the renter themself.
       return booking;
     });
 
@@ -64,8 +60,6 @@ exports.getBookingById = async (req, res) => {
       }
     }
 
-    // For the renter viewing their own booking, their own phone is already known on their profile,
-    // but we can still prevent accidental exposure if this response is shared.
     if (sanitized.user) {
       sanitized.user = { ...sanitized.user };
       if (!['APPROVED', 'ACTIVE', 'COMPLETED'].includes(sanitized.status)) {
@@ -131,7 +125,6 @@ exports.cancelBooking = async (req, res) => {
 
     if (sanitized.car && sanitized.car.owner) {
       sanitized.car = { ...sanitized.car, owner: { ...sanitized.car.owner } };
-      // After cancellation, phone should always be hidden
       delete sanitized.car.owner.phone;
     }
     if (sanitized.user) {
@@ -164,8 +157,7 @@ exports.checkAvailability = async (req, res) => {
 exports.getCarBookings = async (req, res) => {
   try {
     const { carId } = req.params;
-    const bookings = await bookingService.getCarBookings(carId);    // Sanitize - only return dates and minimal info for calendar visualization
-    // Never expose user info or sensitive booking details publicly
+    const bookings = await bookingService.getCarBookings(carId);    
     const sanitized = bookings.map(b => ({
       id: b.id,
       startDate: b.startDate,

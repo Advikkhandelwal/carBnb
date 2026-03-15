@@ -19,6 +19,12 @@ const BookingPage = () => {
     // Get booking data from navigation state
     const { car, startDate, endDate, totalPrice } = location.state || {};
 
+    // Redirect if owner is trying to book their own car
+    if (car && user && car.ownerId === user.id) {
+        navigate('/browse');
+        return null;
+    }
+
     if (!car || !startDate || !endDate) {
         return (
             <div className="booking-page">
@@ -94,7 +100,14 @@ const BookingPage = () => {
             return;
         }
 
-        // User has phone, proceed with booking
+        // Check verification status
+        if (!user?.isVerified) {
+            alert('Please verify your identity in your profile before booking.');
+            navigate('/profile');
+            return;
+        }
+
+        // User has phone and is verified, proceed with booking
         await createBooking();
     };
 

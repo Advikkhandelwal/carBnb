@@ -107,6 +107,13 @@ const CarCard = memo(({ car }) => {
                         {reviewCount > 0 && (
                             <span className="car-card-reviews">({reviewCount})</span>
                         )}
+                        {car.owner?.isVerified && (
+                            <div className="verified-badge" title="Verified Owner">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" />
+                                </svg>
+                            </div>
+                        )}
                     </div>
                 </div>
 

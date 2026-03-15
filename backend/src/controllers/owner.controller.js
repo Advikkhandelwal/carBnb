@@ -22,13 +22,20 @@ exports.addCar = async (req, res) => {
     let image = req.body.image;
 
     if (req.file) {
-      image = `/uploads/${req.file.filename}`;
+      image = req.file.supabaseUrl;
     }
+
+    console.log("Add Car Request Body:", req.body);
+    console.log("Add Car Request File:", req.file);
 
     const car = await ownerService.addCar(ownerId, {
       ...req.body,
       pricePerDay: numericPrice,
       image,
+      transmission: req.body.transmission || 'Manual',
+      seats: req.body.seats ? parseInt(req.body.seats) : 5,
+      latitude: (req.body.latitude && req.body.latitude.trim() !== '') ? parseFloat(req.body.latitude) : null,
+      longitude: (req.body.longitude && req.body.longitude.trim() !== '') ? parseFloat(req.body.longitude) : null,
     });
 
     // Calculate rating for the newly created car (will be 0 since no reviews yet)
@@ -75,7 +82,7 @@ exports.updateCar = async (req, res) => {
     let updateData = { ...req.body };
 
     if (req.file) {
-      updateData.image = `/uploads/${req.file.filename}`;
+      updateData.image = req.file.supabaseUrl;
     }
 
     const car = await ownerService.updateCar(req.params.id, ownerId, updateData);
