@@ -1,5 +1,4 @@
-const { PrismaClient } = require("@prisma/client");
-const prisma = new PrismaClient();
+const prisma = require("../config/prisma");
 
 exports.getAllCars = async () => {
   return prisma.car.findMany({
@@ -53,13 +52,13 @@ exports.searchCars = async (filters) => {
   const where = {};
 
   if (filters.location) {
-    where.location = { contains: filters.location };
+    where.location = { contains: filters.location, mode: 'insensitive' };
   }
   if (filters.brand) {
-    where.brand = { contains: filters.brand };
+    where.brand = { contains: filters.brand, mode: 'insensitive' };
   }
   if (filters.model) {
-    where.model = { contains: filters.model };
+    where.model = { contains: filters.model, mode: 'insensitive' };
   }
   if (filters.fuelType) {
     where.fuelType = filters.fuelType;

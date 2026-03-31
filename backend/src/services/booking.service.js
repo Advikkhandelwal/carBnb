@@ -1,5 +1,4 @@
-const { PrismaClient } = require("@prisma/client");
-const prisma = new PrismaClient();
+const prisma = require("../config/prisma");
 
 exports.createBooking = async (userId, data) => {
   const startDate = new Date(data.startDate);
@@ -201,8 +200,6 @@ exports.getOwnerBookings = (ownerId) => {
           email: true,
           phone: true,
           image: true,
-          aadhaarNumber: true,
-          drivingLicenseNumber: true,
         },
       },
     },
@@ -271,8 +268,6 @@ exports.updateBookingStatusByOwner = async (id, ownerId, status) => {
           email: true,
           phone: true,
           image: true,
-          aadhaarNumber: true,
-          drivingLicenseNumber: true,
         },
       },
     },

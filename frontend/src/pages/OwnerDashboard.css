@@ -299,26 +299,3 @@
         grid-template-columns: 1fr;
     }
 }
-
-.verification-details-box {
-    margin-top: var(--spacing-sm);
-    padding: var(--spacing-xs) var(--spacing-sm);
-    background-color: var(--color-gray-100);
-    border-radius: var(--radius-md);
-    border: 1px dashed var(--color-gray-400);
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--spacing-md);
-}
-
-.verification-detail-item {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-xs);
-    font-size: var(--font-size-xs) !important;
-    color: var(--color-gray-800) !important;
-}
-
-.verification-detail-item svg {
-    color: var(--color-primary);
-}

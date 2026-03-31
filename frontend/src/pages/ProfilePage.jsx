@@ -11,7 +11,6 @@ const ProfilePage = () => {
     const [aadhaarNumber, setAadhaarNumber] = useState('');
     const [drivingLicenseNumber, setDrivingLicenseNumber] = useState('');
     const [isVerifying, setIsVerifying] = useState(false);
-
     const [myCars, setMyCars] = useState([]);
     const [bookings, setBookings] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -22,32 +21,27 @@ const ProfilePage = () => {
 
     const fetchProfileData = async () => {
         try {
-            const [profileData, carsData, bookingsData] = await Promise.all([
-                userAPI.getProfile(),
+            setLoading(true);
+            const data = await userAPI.getProfile();
+            setProfile(data);
+            setAadhaarNumber(data.aadhaarNumber || '');
+            setDrivingLicenseNumber(data.drivingLicenseNumber || '');
+            
+            // Fetch my cars and bookings
+            const [carsData, bookingsData] = await Promise.all([
                 carAPI.getOwnerCars(),
                 bookingAPI.getUserBookings(),
             ]);
 
-            setProfile(profileData);
             setMyCars(carsData.cars || []);
             setBookings(bookingsData.bookings || []);
         } catch (error) {
             console.error('Failed to fetch profile:', error);
-            // Use mock data
             setProfile(user);
-            setMyCars([]);
-            setBookings([]);
         } finally {
             setLoading(false);
         }
     };
-
-    useEffect(() => {
-        if (profile) {
-            setAadhaarNumber(profile.aadhaarNumber || '');
-            setDrivingLicenseNumber(profile.drivingLicenseNumber || '');
-        }
-    }, [profile]);
 
     const handleVerifySubmit = async () => {
         if (!aadhaarNumber || !drivingLicenseNumber) {
@@ -61,13 +55,13 @@ const ProfilePage = () => {
                 aadhaarNumber, 
                 drivingLicenseNumber 
             });
-            await fetchProfileData();
             
             // Sync with global Auth state so other pages know user is verified
             if (updateUser) {
                 updateUser({ isVerified: true });
             }
             
+            await fetchProfileData();
             alert('Identity verified successfully!');
         } catch (err) {
             console.error('Verification failed:', err);
@@ -147,34 +141,22 @@ const ProfilePage = () => {
                                         />
                                     </div>
                                 </div>
-                                
-                                <div style={{ display: 'flex', gap: 'var(--spacing-md)', marginTop: 'var(--spacing-md)' }}>
-                                    <button
-                                        className="btn btn-primary"
-                                        onClick={handleVerifySubmit}
-                                        disabled={isVerifying}
-                                    >
-                                        {isVerifying ? 'Saving...' : 'Verify Now'}
-                                    </button>
-                                </div>
+                                <button
+                                    className="btn btn-primary"
+                                    style={{ marginTop: 'var(--spacing-md)' }}
+                                    onClick={handleVerifySubmit}
+                                    disabled={isVerifying}
+                                >
+                                    {isVerifying ? 'Verifying...' : 'Verify Now'}
+                                </button>
                             </div>
                         ) : (
                             <div className="verification-success">
-                                <div className="verification-details-summary">
-                                    <div className="summary-item">
-                                        <strong>Aadhaar:</strong> {profile?.aadhaarNumber}
-                                    </div>
-                                    <div className="summary-item">
-                                        <strong>License:</strong> {profile?.drivingLicenseNumber}
-                                    </div>
-                                </div>
-                                <div className="success-message-box">
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                        <path d="M9 11l3 3L22 4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                        <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                    </svg>
-                                    <span>Your identity has been verified! You can now book cars without any restrictions.</span>
-                                </div>
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path d="M9 11l3 3L22 4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                    <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                </svg>
+                                <span>Your identity has been verified. You can now book cars!</span>
                             </div>
                         )}
                     </div>

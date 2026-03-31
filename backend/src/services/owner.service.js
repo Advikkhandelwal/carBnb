@@ -1,5 +1,4 @@
-const { PrismaClient } = require("@prisma/client");
-const prisma = new PrismaClient();
+const prisma = require("../config/prisma");
 const supabase = require("../config/supabase");
 
 exports.addCar = (ownerId, data) => {
