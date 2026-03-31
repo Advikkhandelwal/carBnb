@@ -1,8 +1,8 @@
-# Carbnb - The Airbnb for Cars 🚗💨
+# Carbnb - The Airbnb for Cars 
 
 Carbnb is a full-stack car-sharing marketplace that connects car owners with renters. Owners can list their vehicles to earn extra income, while renters can browse and book a wide variety of cars nearby for their travel needs.
 
-## 🌟 Key Features
+## Key Features
 
 ### For Renters
 - **Smart Search**: Filter cars by location, brand, price, fuel type, and availability. (Case-insensitive search).
@@ -17,7 +17,7 @@ Carbnb is a full-stack car-sharing marketplace that connects car owners with ren
 - **Revenue Tracking**: Automated calculation of total booking prices and historical earnings data.
 - **Verification Badges**: Get verified to increase trust and booking rates.
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 - **Frontend**: React.js, Vite, CSS (Vanilla), Leaflet Maps.
 - **Backend**: Node.js, Express.js.
@@ -26,7 +26,7 @@ Carbnb is a full-stack car-sharing marketplace that connects car owners with ren
 - **Storage**: Supabase Storage (for car images and verification docs).
 - **Authentication**: JWT (JSON Web Tokens) & Bcrypt for secure password hashing.
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 - Node.js (v16+)
@@ -79,10 +79,10 @@ Carbnb is a full-stack car-sharing marketplace that connects car owners with ren
    npm run dev
    ```
 
-## 🔌 Database Maintenance
+## Database Maintenance
 To ensure stability on platforms like Render or Supabase:
 - **Connection Pooling**: The project uses a centralized Prisma client to manage database connections efficiently and prevent "Max Clients" errors.
 - **Migrations**: Always run `npx prisma migrate dev` after updating the `schema.prisma`.
 
-## 📜 License
+## License
 Internal Project - Not for redistribution.
