@@ -78,20 +78,20 @@ exports.login = async (email, password) => {
 exports.googleLogin = async ({ name, email, image }) => {
   let user = await prisma.user.findUnique({ where: { email } });
 
-  if (!user) {
-    // Register new user with random password
-    const randomPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
-    const hashedPassword = await bcrypt.hash(randomPassword, 10);
+    if (!user) {
+        // Register new user with random password
+        const randomPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
+        const hashedPassword = await bcrypt.hash(randomPassword, 4); // Fast hashing for random inaccessible OAuth passwords
 
-    user = await prisma.user.create({
-      data: {
-        name,
-        email,
-        password: hashedPassword,
-        image,
-      },
-    });
-  }
+        user = await prisma.user.create({
+            data: {
+                name,
+                email,
+                password: hashedPassword,
+                image,
+            },
+        });
+    }
 
   const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, {
     expiresIn: "7d",

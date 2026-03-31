@@ -52,11 +52,14 @@ const SignupPage = () => {
     };
 
     const handleGoogleSuccess = async (credentialResponse) => {
+        setLoading(true);
         try {
             await login(credentialResponse.credential, 'google');
             navigate('/');
         } catch (err) {
             console.error('Google signup failed:', err);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -80,115 +83,138 @@ const SignupPage = () => {
                         </div>
                     )}
 
-                    <form onSubmit={handleSubmit} className="auth-form">
-                        <div className="form-group">
-                            <label htmlFor="name" className="form-label">
-                                Full Name
-                            </label>
-                            <input
-                                type="text"
-                                id="name"
-                                name="name"
-                                value={formData.name}
-                                onChange={handleChange}
-                                className="form-input"
-                                placeholder="John Doe"
-                                required
-                            />
+                    {loading ? (
+                        <div className="auth-loading-spinner" style={{ textAlign: 'center', padding: '2rem 0' }}>
+                            <div className="spinner" style={{ 
+                                width: '40px', 
+                                height: '40px', 
+                                border: '4px solid #f3f3f3', 
+                                borderTop: '4px solid #FF385C', 
+                                borderRadius: '50%', 
+                                animation: 'spin 1s linear infinite', 
+                                margin: '0 auto 1rem' 
+                            }}></div>
+                            <p style={{ color: '#717171' }}>Creating account...</p>
                         </div>
+                    ) : (
+                        <>
+                            <form onSubmit={handleSubmit} className="auth-form">
+                                <div className="form-group">
+                                    <label htmlFor="name" className="form-label">
+                                        Full Name
+                                    </label>
+                                    <input
+                                        type="text"
+                                        id="name"
+                                        name="name"
+                                        value={formData.name}
+                                        onChange={handleChange}
+                                        className="form-input"
+                                        placeholder="John Doe"
+                                        required
+                                    />
+                                </div>
 
-                        <div className="form-group">
-                            <label htmlFor="email" className="form-label">
-                                Email
-                            </label>
-                            <input
-                                type="email"
-                                id="email"
-                                name="email"
-                                value={formData.email}
-                                onChange={handleChange}
-                                className="form-input"
-                                placeholder="you@example.com"
-                                required
-                            />
-                        </div>
+                                <div className="form-group">
+                                    <label htmlFor="email" className="form-label">
+                                        Email
+                                    </label>
+                                    <input
+                                        type="email"
+                                        id="email"
+                                        name="email"
+                                        value={formData.email}
+                                        onChange={handleChange}
+                                        className="form-input"
+                                        placeholder="you@example.com"
+                                        required
+                                    />
+                                </div>
 
-                        <div className="form-group">
-                            <label htmlFor="phone" className="form-label">
-                                Phone Number
-                            </label>
-                            <input
-                                type="tel"
-                                id="phone"
-                                name="phone"
-                                value={formData.phone}
-                                onChange={handleChange}
-                                className="form-input"
-                                placeholder="+91 98765 43210"
-                                required
-                            />
-                        </div>
+                                <div className="form-group">
+                                    <label htmlFor="phone" className="form-label">
+                                        Phone Number
+                                    </label>
+                                    <input
+                                        type="tel"
+                                        id="phone"
+                                        name="phone"
+                                        value={formData.phone}
+                                        onChange={handleChange}
+                                        className="form-input"
+                                        placeholder="+91 98765 43210"
+                                        required
+                                    />
+                                </div>
 
-                        <div className="form-group">
-                            <label htmlFor="password" className="form-label">
-                                Password
-                            </label>
-                            <input
-                                type="password"
-                                id="password"
-                                name="password"
-                                value={formData.password}
-                                onChange={handleChange}
-                                className="form-input"
-                                placeholder="At least 6 characters"
-                                required
-                            />
-                        </div>
+                                <div className="form-group">
+                                    <label htmlFor="password" className="form-label">
+                                        Password
+                                    </label>
+                                    <input
+                                        type="password"
+                                        id="password"
+                                        name="password"
+                                        value={formData.password}
+                                        onChange={handleChange}
+                                        className="form-input"
+                                        placeholder="At least 6 characters"
+                                        required
+                                    />
+                                </div>
 
-                        <div className="form-group">
-                            <label htmlFor="confirmPassword" className="form-label">
-                                Confirm Password
-                            </label>
-                            <input
-                                type="password"
-                                id="confirmPassword"
-                                name="confirmPassword"
-                                value={formData.confirmPassword}
-                                onChange={handleChange}
-                                className="form-input"
-                                placeholder="Re-enter your password"
-                                required
-                            />
-                        </div>
+                                <div className="form-group">
+                                    <label htmlFor="confirmPassword" className="form-label">
+                                        Confirm Password
+                                    </label>
+                                    <input
+                                        type="password"
+                                        id="confirmPassword"
+                                        name="confirmPassword"
+                                        value={formData.confirmPassword}
+                                        onChange={handleChange}
+                                        className="form-input"
+                                        placeholder="Re-enter your password"
+                                        required
+                                    />
+                                </div>
 
-                        <button type="submit" className="btn btn-primary" disabled={loading} style={{ width: '100%' }}>
-                            {loading ? 'Creating account...' : 'Sign up'}
-                        </button>
-                    </form>
+                                <button type="submit" className="btn btn-primary" disabled={loading} style={{ width: '100%' }}>
+                                    Sign up
+                                </button>
+                            </form>
 
-                    <div className="auth-divider">
-                        <span>or</span>
-                    </div>
+                            <div className="auth-divider">
+                                <span>or</span>
+                            </div>
 
-                    <div className="google-login-container">
-                        <GoogleLogin
-                            onSuccess={handleGoogleSuccess}
-                            onError={handleGoogleError}
-                            theme="outline"
-                            size="large"
-                            text="continue_with"
-                            width="100%"
-                        />
-                    </div>
+                            <div className="google-login-container">
+                                <GoogleLogin
+                                    onSuccess={handleGoogleSuccess}
+                                    onError={handleGoogleError}
+                                    theme="outline"
+                                    size="large"
+                                    text="continue_with"
+                                    width="100%"
+                                />
+                            </div>
 
-                    <p className="auth-footer">
-                        Already have an account?{' '}
-                        <Link to="/login" className="auth-link">
-                            Log in
-                        </Link>
-                    </p>
+                            <p className="auth-footer">
+                                Already have an account?{' '}
+                                <Link to="/login" className="auth-link">
+                                    Log in
+                                </Link>
+                            </p>
+                        </>
+                    )}
                 </div>
             </div>
+            <style>{`
+                @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
+            `}</style>
         </div>
     );
 };

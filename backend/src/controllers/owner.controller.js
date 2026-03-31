@@ -5,13 +5,13 @@ exports.addCar = async (req, res) => {
   try {
     const { brand, model, engine, fuelType, color, pricePerDay, location } = req.body;
 
-    if (!brand || !model || !engine || !fuelType || !color || !pricePerDay || !location) {
+    if (!brand || !model || !fuelType || !pricePerDay || !location) {
       return res.status(400).json({
-        error: "Missing required fields: brand, model, engine, fuelType, color, pricePerDay, location"
+        error: "Missing required fields: brand, model, fuelType, pricePerDay, location"
       });
     }
 
-    const numericPrice = Number(pricePerDay);
+    const numericPrice = Math.round(Number(pricePerDay));
     if (Number.isNaN(numericPrice) || numericPrice <= 0) {
       return res.status(400).json({
         error: "Invalid pricePerDay. It must be a positive number.",

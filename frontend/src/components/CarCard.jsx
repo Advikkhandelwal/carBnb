@@ -21,6 +21,7 @@ const CarCard = memo(({ car }) => {
     } = car;
 
     const carId = id || _id;
+    // useAuth coming from AuthContext
     const { isAuthenticated, token } = useAuth();
     const [isFavorite, setIsFavorite] = useState(false);
 
@@ -49,6 +50,7 @@ const CarCard = memo(({ car }) => {
 
         const newState = !isFavorite;
         setIsFavorite(newState);
+        // sending request to backend for updating
 
         try {
             const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
@@ -88,6 +90,7 @@ const CarCard = memo(({ car }) => {
                         aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
                     >
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        {/* d = drawing instructions for heart to make as favourite. */}
                             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                         </svg>
                     </button>
@@ -100,6 +103,7 @@ const CarCard = memo(({ car }) => {
                         {brand} {model}
                     </h3>
                     <div className="car-card-rating">
+                    {/* Star Icon */}
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
                         </svg>
@@ -138,7 +142,7 @@ const CarCard = memo(({ car }) => {
 
                 <div className="car-card-footer">
                     <div className="car-card-price">
-                        <span className="car-card-price-amount">₹{pricePerDay}</span>
+                        <span className="car-card-price-amount">₹{Math.round(pricePerDay)}</span>
                         <span className="car-card-price-period">/ day</span>
                     </div>
                 </div>

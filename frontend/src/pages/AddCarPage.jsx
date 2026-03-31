@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { carAPI, userAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import MapComponent from '../components/MapComponent';
 import './AddCarPage.css';
 
 const AddCarPage = () => {
@@ -32,6 +33,14 @@ const AddCarPage = () => {
         });
     };
 
+    const handleMapClick = (lat, lng) => {
+        setFormData(prev => ({
+            ...prev,
+            latitude: lat.toFixed(6),
+            longitude: lng.toFixed(6)
+        }));
+    };
+
     const handleImageChange = (e) => {
         if (e.target.files && e.target.files[0]) {
             setImageFile(e.target.files[0]);
@@ -44,6 +53,7 @@ const AddCarPage = () => {
             return;
         }
 
+        setLoading(true);
         try {
             const formData = new FormData();
             formData.append('phone', phoneNumber);
@@ -54,10 +64,12 @@ const AddCarPage = () => {
             setShowPhoneModal(false);
 
             // Automatically submit the form after phone is added
-            submitCarListing();
+            await submitCarListing();
         } catch (error) {
             console.error('Failed to add phone:', error);
             alert('Failed to add phone number. Please try again.');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -302,6 +314,25 @@ const AddCarPage = () => {
                         </div>
 
                         <div className="form-group">
+                            <label className="form-label">Pick Location on Map</label>
+                            <div className="map-picker-container">
+                                <MapComponent 
+                                    onMapClick={handleMapClick}
+                                    car={{
+                                        latitude: formData.latitude ? parseFloat(formData.latitude) : null,
+                                        longitude: formData.longitude ? parseFloat(formData.longitude) : null,
+                                        brand: formData.brand || 'Your',
+                                        model: formData.model || 'Car',
+                                        pricePerDay: formData.pricePerDay || 0,
+                                        location: formData.location || 'Selected Location'
+                                    }}
+                                    height="300px"
+                                />
+                                <p className="form-help">Click on the map to set the exact location of your car</p>
+                            </div>
+                        </div>
+
+                        <div className="form-group">
                             <label htmlFor="image" className="form-label">
                                 Car Image
                             </label>
@@ -364,8 +395,9 @@ const AddCarPage = () => {
                                 type="button"
                                 onClick={handleAddPhone}
                                 className="btn btn-primary"
+                                disabled={loading}
                             >
-                                Add Phone Number
+                                {loading ? 'Adding...' : 'Add Phone Number'}
                             </button>
                         </div>
                     </div>

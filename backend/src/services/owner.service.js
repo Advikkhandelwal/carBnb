@@ -11,7 +11,7 @@ exports.addCar = (ownerId, data) => {
       engine: data.engine,
       fuelType: data.fuelType,
       color: data.color,
-      pricePerDay: Number(data.pricePerDay),
+      pricePerDay: Math.round(Number(data.pricePerDay)),
       location: data.location,
       image: data.image ?? null,
       transmission: data.transmission,

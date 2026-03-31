@@ -55,6 +55,7 @@ const BookingPage = () => {
             return;
         }
 
+        setLoading(true);
         try {
             const formData = new FormData();
             formData.append('phone', phoneNumber);
@@ -65,10 +66,12 @@ const BookingPage = () => {
             setShowPhoneModal(false);
 
             // Proceed
-            createBooking();
+            await createBooking();
         } catch (error) {
             console.error('Failed to add phone:', error);
             alert('Failed to add phone number. Please try again.');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -292,8 +295,9 @@ const BookingPage = () => {
                                 type="button"
                                 onClick={handleAddPhone}
                                 className="btn btn-primary"
+                                disabled={loading} // 3. Disable button in Phone Number Modal when loading
                             >
-                                Add Phone Number
+                                {loading ? 'Adding...' : 'Add Phone Number'}
                             </button>
                         </div>
                     </div>

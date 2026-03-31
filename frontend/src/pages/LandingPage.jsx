@@ -16,8 +16,7 @@ const LandingPage = () => {
                 setFeaturedCars(Array.isArray(response) ? response : response.cars || []);
             } catch (error) {
                 console.error('Failed to fetch featured cars:', error);
-                // Use mock data for demo
-                setFeaturedCars(getMockCars());
+                setFeaturedCars([]);
             } finally {
                 setLoading(false);
             }
@@ -157,96 +156,5 @@ const LandingPage = () => {
     );
 };
 
-// Mock data for demo purposes
-const getMockCars = () => [
-    {
-        _id: '1',
-        brand: 'Honda',
-        model: 'City',
-        pricePerDay: 1500,
-        location: 'Mumbai, Maharashtra',
-        image: 'https://images.unsplash.com/photo-1590362891991-f776e747a588?w=400',
-        rating: 4.8,
-        reviewCount: 24,
-        fuelType: 'Petrol',
-    },
-    {
-        _id: '2',
-        brand: 'Hyundai',
-        model: 'Creta',
-        pricePerDay: 2000,
-        location: 'Delhi, NCR',
-        image: 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=400',
-        rating: 4.7,
-        reviewCount: 18,
-        fuelType: 'Diesel',
-    },
-    {
-        _id: '3',
-        brand: 'Maruti',
-        model: 'Swift',
-        pricePerDay: 1200,
-        location: 'Bangalore, Karnataka',
-        image: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?w=400',
-        rating: 4.6,
-        reviewCount: 32,
-        fuelType: 'Petrol',
-    },
-    {
-        _id: '4',
-        brand: 'Tata',
-        model: 'Nexon',
-        pricePerDay: 1800,
-        location: 'Pune, Maharashtra',
-        image: 'https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=400',
-        rating: 4.9,
-        reviewCount: 15,
-        fuelType: 'Electric',
-    },
-    {
-        _id: '5',
-        brand: 'Mahindra',
-        model: 'XUV700',
-        pricePerDay: 2500,
-        location: 'Hyderabad, Telangana',
-        image: 'https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?w=400',
-        rating: 4.8,
-        reviewCount: 21,
-        fuelType: 'Diesel',
-    },
-    {
-        _id: '6',
-        brand: 'Kia',
-        model: 'Seltos',
-        pricePerDay: 2200,
-        location: 'Chennai, Tamil Nadu',
-        image: 'https://images.unsplash.com/photo-1617654112368-307921291f42?w=400',
-        rating: 4.7,
-        reviewCount: 19,
-        fuelType: 'Petrol',
-    },
-    {
-        _id: '7',
-        brand: 'Toyota',
-        model: 'Fortuner',
-        pricePerDay: 3500,
-        location: 'Goa',
-        image: 'https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?w=400',
-        rating: 5.0,
-        reviewCount: 12,
-        fuelType: 'Diesel',
-    },
-    {
-        _id: '8',
-        brand: 'MG',
-        model: 'Hector',
-        pricePerDay: 2300,
-        location: 'Jaipur, Rajasthan',
-        image: 'https://images.unsplash.com/photo-1609521263047-f8f205293f24?w=400',
-        rating: 4.6,
-        reviewCount: 16,
-        fuelType: 'Petrol',
-    },
-];
 
 export default LandingPage;

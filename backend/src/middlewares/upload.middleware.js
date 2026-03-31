@@ -9,6 +9,7 @@ const storage = multer.memoryStorage();
 
 // File filter to ensure only images are uploaded
 const fileFilter = (req, file, cb) => {
+    // allows only image 
     if (file.mimetype.startsWith('image/')) {
         cb(null, true);
     } else {

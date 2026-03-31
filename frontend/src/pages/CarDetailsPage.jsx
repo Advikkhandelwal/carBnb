@@ -231,8 +231,7 @@ const CarDetailsPage = () => {
                                     📍 {car.location}
                                 </p>
                                 <MapComponent
-                                    cars={[car]}
-                                    center={[car.latitude, car.longitude]}
+                                    car={car}
                                     zoom={14}
                                 />
                             </section>
@@ -254,7 +253,7 @@ const CarDetailsPage = () => {
                     <div className="booking-sidebar">
                         <div className="booking-card">
                             <div className="booking-price">
-                                <span className="price-amount">₹{car.pricePerDay}</span>
+                                <span className="price-amount">₹{Math.round(car.pricePerDay)}</span>
                                 <span className="price-period">/ day</span>
                             </div>
 
@@ -292,7 +291,7 @@ const CarDetailsPage = () => {
                             {totalPrice > 0 && (
                                 <div className="price-breakdown">
                                     <div className="price-row">
-                                        <span>₹{car.pricePerDay} × {days} days</span>
+                                        <span>₹{Math.round(car.pricePerDay)} × {days} days</span>
                                         <span>₹{totalPrice}</span>
                                     </div>
                                     <div className="price-divider"></div>
