@@ -6,7 +6,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
  * @returns {string} - The absolute image URL.
  */
 export const getFullImageUrl = (url) => {
-    if (!url) return 'https://via.placeholder.com/400x300?text=Car+Image';
+    if (!url) return 'https://placehold.co/400x300/e2e8f0/475569?text=No+Image';
 
     // Ensure url is a string and trim it
     const cleanUrl = String(url).trim();
@@ -17,6 +17,11 @@ export const getFullImageUrl = (url) => {
         const cleanBaseUrl = API_BASE_URL.endsWith('/') ? API_BASE_URL.slice(0, -1) : API_BASE_URL;
         const cleanPath = path.startsWith('/') ? path : `/${path}`;
         return `${cleanBaseUrl}${cleanPath}`;
+    }
+
+    // Handle legacy local upload paths that won't exist in production
+    if (cleanUrl.startsWith('/uploads/')) {
+        return 'https://placehold.co/400x300/e2e8f0/475569?text=Legacy+Image';
     }
 
     // If it's already an absolute URL (starts with http or https), return as is
