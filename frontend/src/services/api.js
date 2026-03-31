@@ -180,9 +180,11 @@ export const userAPI = {
     },
 
     updateProfile: async (userData) => {
+        const isFormData = userData instanceof FormData;
         return fetchWithAuth('/users/profile', {
             method: 'PUT',
-            body: JSON.stringify(userData),
+            body: isFormData ? userData : JSON.stringify(userData),
+            headers: isFormData ? {} : { 'Content-Type': 'application/json' },
         });
     },
 

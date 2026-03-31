@@ -21,7 +21,7 @@ const upload = multer({
     storage: storage,
     fileFilter: fileFilter,
     limits: {
-        fileSize: 5 * 1024 * 1024, // 5MB limit
+        fileSize: 10 * 1024 * 1024, // 10MB limit
     },
 });
 
@@ -36,6 +36,8 @@ const uploadToSupabase = async (req, res, next) => {
         const fileExt = path.extname(file.originalname);
         const fileName = `image-${Date.now()}-${Math.round(Math.random() * 1e9)}${fileExt}`;
 
+        console.log(`📤 Uploading file to Supabase: ${fileName} (${file.size} bytes)`);
+
         // Upload to Supabase Storage 'car-images' bucket
         const { data, error } = await supabase.storage
             .from('car-images')
@@ -44,7 +46,12 @@ const uploadToSupabase = async (req, res, next) => {
                 upsert: false
             });
 
-        if (error) throw error;
+        if (error) {
+            console.error("❌ Supabase upload error:", error);
+            throw error;
+        }
+
+        console.log(`✅ Upload successful! Path: ${data.path}`);
 
         // Get public URL
         const { data: { publicUrl } } = supabase.storage
