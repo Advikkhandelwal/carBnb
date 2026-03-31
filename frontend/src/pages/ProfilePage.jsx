@@ -6,7 +6,7 @@ import { getFullImageUrl } from '../utils/urlUtils';
 import './ProfilePage.css';
 
 const ProfilePage = () => {
-    const { user } = useAuth();
+    const { user, updateUser } = useAuth();
     const [profile, setProfile] = useState(null);
     const [aadhaarNumber, setAadhaarNumber] = useState('');
     const [drivingLicenseNumber, setDrivingLicenseNumber] = useState('');
@@ -62,7 +62,13 @@ const ProfilePage = () => {
                 drivingLicenseNumber 
             });
             await fetchProfileData();
-            alert('Verification documents submitted successfully!');
+            
+            // Sync with global Auth state so other pages know user is verified
+            if (updateUser) {
+                updateUser({ isVerified: true });
+            }
+            
+            alert('Identity verified successfully!');
         } catch (err) {
             console.error('Verification failed:', err);
             alert('Verification failed: ' + (err.response?.data?.message || err.message));
@@ -150,31 +156,25 @@ const ProfilePage = () => {
                                     >
                                         {isVerifying ? 'Saving...' : 'Verify Now'}
                                     </button>
-
-                                    {profile?.aadhaarNumber && !profile?.isVerified && (
-                                        <button
-                                            className="btn btn-secondary"
-                                            onClick={async () => {
-                                                try {
-                                                    await verificationAPI.verifyUser(profile.id, true);
-                                                    fetchProfileData();
-                                                } catch (err) {
-                                                    alert('Verification failed: ' + err.message);
-                                                }
-                                            }}
-                                        >
-                                            (Mock) Approve Verification
-                                        </button>
-                                    )}
                                 </div>
                             </div>
                         ) : (
                             <div className="verification-success">
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <path d="M9 11l3 3L22 4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                    <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                </svg>
-                                <span>Your identity has been verified. You can now book cars!</span>
+                                <div className="verification-details-summary">
+                                    <div className="summary-item">
+                                        <strong>Aadhaar:</strong> {profile?.aadhaarNumber}
+                                    </div>
+                                    <div className="summary-item">
+                                        <strong>License:</strong> {profile?.drivingLicenseNumber}
+                                    </div>
+                                </div>
+                                <div className="success-message-box">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <path d="M9 11l3 3L22 4" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                        <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                    </svg>
+                                    <span>Your identity has been verified! You can now book cars without any restrictions.</span>
+                                </div>
                             </div>
                         )}
                     </div>

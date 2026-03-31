@@ -9,8 +9,8 @@ exports.uploadVerificationDocs = async (userId, data) => {
         data: {
             aadhaarNumber: aadhaarNumber || undefined,
             drivingLicenseNumber: drivingLicenseNumber || undefined,
-            // Reset verification status if new docs are uploaded
-            isVerified: false,
+            // Instant verification for this simulation
+            isVerified: true,
         },
         select: {
             id: true,
