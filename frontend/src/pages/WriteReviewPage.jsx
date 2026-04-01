@@ -28,12 +28,6 @@ const WriteReviewPage = () => {
                 return;
             }
 
-            // Check if already reviewed (optional optimization, backend also enforces)
-            // const eligibility = await reviewAPI.checkEligibility(bookingId);
-            // if (!eligibility.eligible) {
-            //    setError('You have already reviewed this booking or are not eligible.');
-            // }
-
         } catch (err) {
             console.error('Error fetching booking:', err);
             setError('Booking not found or unexpected error.');

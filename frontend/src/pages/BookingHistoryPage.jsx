@@ -46,7 +46,9 @@ const BookingHistoryPage = () => {
 
     const filteredBookings = filter === 'all'
         ? bookings
-        : bookings.filter(b => b.status === filter);
+        : filter === 'confirmed' 
+            ? bookings.filter(b => b.status?.toLowerCase() === 'confirmed' || b.status?.toLowerCase() === 'approved' || b.status === 'CONFIRMED' || b.status === 'APPROVED')
+            : bookings.filter(b => b.status?.toLowerCase() === filter || b.status === filter.toUpperCase());
 
     return (
         <div className="booking-history-page">
@@ -68,19 +70,19 @@ const BookingHistoryPage = () => {
                         className={`filter-tab ${filter === 'pending' ? 'active' : ''}`}
                         onClick={() => setFilter('pending')}
                     >
-                        Pending ({bookings.filter(b => b.status === 'pending').length})
+                        Pending ({bookings.filter(b => b.status?.toLowerCase() === 'pending' || b.status === 'PENDING').length})
                     </button>
                     <button
                         className={`filter-tab ${filter === 'confirmed' ? 'active' : ''}`}
                         onClick={() => setFilter('confirmed')}
                     >
-                        Confirmed ({bookings.filter(b => b.status === 'confirmed').length})
+                        Confirmed ({bookings.filter(b => b.status?.toLowerCase() === 'confirmed' || b.status?.toLowerCase() === 'approved' || b.status === 'CONFIRMED' || b.status === 'APPROVED').length})
                     </button>
                     <button
                         className={`filter-tab ${filter === 'completed' ? 'active' : ''}`}
                         onClick={() => setFilter('completed')}
                     >
-                        Completed ({bookings.filter(b => b.status === 'completed').length})
+                        Completed ({bookings.filter(b => b.status?.toLowerCase() === 'completed' || b.status === 'COMPLETED').length})
                     </button>
                 </div>
 
@@ -140,11 +142,7 @@ const BookingHistoryPage = () => {
                                         </div>
 
                                         <div className="info-item">
-                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                                <line x1="12" y1="1" x2="12" y2="23" strokeWidth="2" />
-                                                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" strokeWidth="2" />
-                                            </svg>
-                                            <span className="price">₹{booking.totalPrice}</span>
+                                            <span className="price">₹{booking.totalPrice || (calculateDays(booking.startDate, booking.endDate) * (booking.car?.pricePerDay || 0))}</span>
                                         </div>
                                     </div>
 
@@ -183,67 +181,6 @@ const BookingHistoryPage = () => {
                                                 className="btn btn-outline btn-sm"
                                             >
                                                 Cancel Booking
-                                            </button>
-                                        )}
-
-                                        {booking.status === 'APPROVED' && (
-                                            <button
-                                                className="btn btn-primary btn-sm"
-                                                onClick={async () => {
-                                                    const url = prompt('Enter Pre-Trip Photo URL (multiple separated by comma):');
-                                                    if (url) {
-                                                        try {
-                                                            await tripAPI.uploadPhotos({
-                                                                bookingId: booking.id || booking._id,
-                                                                type: 'pre',
-                                                                photos: url.split(',').map(s => s.trim())
-                                                            });
-                                                            // In a real app, this might also trigger status -> ACTIVE
-                                                            // For now, just refresh to show photos
-                                                            fetchBookings();
-                                                        } catch (err) {
-                                                            alert('Upload failed: ' + err.message);
-                                                        }
-                                                    }
-                                                }}
-                                            >
-                                                Start Trip (Upload Photos)
-                                            </button>
-                                        )}
-
-                                        {booking.status === 'ACTIVE' && (
-                                            <button
-                                                className="btn btn-primary btn-sm"
-                                                onClick={async () => {
-                                                    const url = prompt('Enter Post-Trip Photo URL (multiple separated by comma):');
-                                                    if (url) {
-                                                        try {
-                                                            await tripAPI.uploadPhotos({
-                                                                bookingId: booking.id || booking._id,
-                                                                type: 'post',
-                                                                photos: url.split(',').map(s => s.trim())
-                                                            });
-                                                            fetchBookings();
-                                                        } catch (err) {
-                                                            alert('Upload failed: ' + err.message);
-                                                        }
-                                                    }
-                                                }}
-                                            >
-                                                End Trip (Upload Photos)
-                                            </button>
-                                        )}
-
-                                        {(booking.preTripPhotos || booking.postTripPhotos) && (
-                                            <button
-                                                className="btn btn-outline btn-sm"
-                                                onClick={() => {
-                                                    const pre = booking.preTripPhotos ? JSON.parse(booking.preTripPhotos) : [];
-                                                    const post = booking.postTripPhotos ? JSON.parse(booking.postTripPhotos) : [];
-                                                    alert(`Pre-Trip: ${pre.join(', ')}\n\nPost-Trip: ${post.join(', ')}`);
-                                                }}
-                                            >
-                                                View Trip Photos
                                             </button>
                                         )}
 

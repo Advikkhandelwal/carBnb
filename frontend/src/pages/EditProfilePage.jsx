@@ -14,7 +14,6 @@ const EditProfilePage = () => {
         email: '',
         phone: '',
     });
-    const [imageFile, setImageFile] = useState(null);
     const [previewUrl, setPreviewUrl] = useState('');
 
     useEffect(() => {
@@ -35,14 +34,6 @@ const EditProfilePage = () => {
         });
     };
 
-    const handleImageChange = (e) => {
-        if (e.target.files && e.target.files[0]) {
-            const file = e.target.files[0];
-            setImageFile(file);
-            setPreviewUrl(URL.createObjectURL(file));
-        }
-    };
-
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -51,10 +42,6 @@ const EditProfilePage = () => {
             const data = new FormData();
             data.append('name', formData.name);
             data.append('phone', formData.phone);
-
-            if (imageFile) {
-                data.append('image', imageFile);
-            }
 
             const updatedUser = await userAPI.updateProfile(data);
 
@@ -86,16 +73,6 @@ const EditProfilePage = () => {
                                     formData.name?.charAt(0).toUpperCase() || 'U'
                                 )}
                             </div>
-                            <label htmlFor="image" className="btn btn-outline btn-sm">
-                                Change Photo
-                            </label>
-                            <input
-                                type="file"
-                                id="image"
-                                accept="image/*"
-                                onChange={handleImageChange}
-                                style={{ display: 'none' }}
-                            />
                         </div>
 
                         <div className="form-group">
